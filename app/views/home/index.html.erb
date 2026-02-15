@@ -11,12 +11,18 @@
     <h1 class="text-2xl font-bold text-gray-900 mb-8">Good <%= time_greeting %>, <%= current_user.email.split('@').first %></h1>
 
     <%
-      metrics = [
-        { name: "Weight",              entry: @todays_weight, model: WeightEntry, unit: "lbs", step: 0.1, min: 0.1, placeholder: "lbs" },
-        { name: "HRV",                 entry: @todays_hrv,    model: HrvEntry,    unit: "ms",  step: 1,   min: 1,   placeholder: "ms" },
-        { name: "Resting Heart Rate",  entry: @todays_rhr,    model: RhrEntry,    unit: "bpm", step: 1,   min: 1,   placeholder: "bpm" },
-        { name: "Steps Yesterday",     entry: @todays_steps,  model: StepEntry,   unit: nil,   step: 1,   min: 0,   placeholder: "steps" },
-      ]
+      metrics = @metrics.map do |m|
+        measurement = @todays_measurements[m.id]
+        {
+          metric: m,
+          entry: measurement,
+          name: m.slug == "steps" ? "Steps Yesterday" : m.name,
+          unit: m.units,
+          step: m.slug == "weight" ? 0.1 : 1,
+          min: m.slug == "steps" ? 0 : (m.slug == "weight" ? 0.1 : 1),
+          placeholder: m.units || m.slug
+        }
+      end
       pending  = metrics.reject { |m| m[:entry] }
       recorded = metrics.select { |m| m[:entry] }
     %>
@@ -29,10 +35,10 @@
           <div class="space-y-3">
             <% pending.each do |m| %>
               <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                <%= form_with model: m[:model].new, class: "flex items-end gap-3" do |f| %>
+                <%= form_with url: measurements_path(metric_slug: m[:metric].slug), method: :post, class: "flex items-end gap-3" do |f| %>
                   <div class="flex-1">
                     <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"><%= m[:name] %></p>
-                    <%= f.number_field :value, step: m[:step], min: m[:min], required: true, placeholder: m[:placeholder],
+                    <%= f.number_field "measurement[value]", step: m[:step], min: m[:min], required: true, placeholder: m[:placeholder],
                           class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
                   </div>
                   <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
@@ -58,14 +64,13 @@
                 <div>
                   <p class="text-xs font-medium text-gray-500 uppercase tracking-wide"><%= m[:name] %></p>
                   <p class="mt-1 text-2xl font-bold text-gray-900">
-                    <%= m[:unit] ? "#{m[:entry].value} " : number_with_delimiter(m[:entry].value) %>
+                    <%= m[:unit] ? "#{m[:entry].value} " : number_with_delimiter(m[:entry].value.to_i) %>
                     <% if m[:unit] %>
                       <span class="text-sm font-normal text-gray-400"><%= m[:unit] %></span>
                     <% end %>
                   </p>
-                  <% if m[:model] == WeightEntry %>
-                    <%= link_to "View Trends", weight_entries_path, class: "mt-2 inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
-                  <% end %>
+                  <%= link_to "View Trends", measurement_path(metric_slug: m[:metric].slug),
+                        class: "mt-2 inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
                 </div>
                 <div class="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
                   <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
@@ -79,6 +84,19 @@
       </div>
     </div>
     <div class="mt-8">
+      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Settings</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-900">Manage Metrics</p>
+            <p class="text-xs text-gray-400">Add, edit, or remove tracked metrics</p>
+          </div>
+          <%= link_to "Manage", metrics_path,
+                class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
+        </div>
+      </div>
+    </div>
+    <div class="mt-3">
       <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">API Access</p>
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <div class="flex items-center justify-between">

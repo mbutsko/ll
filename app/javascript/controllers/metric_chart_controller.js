@@ -5,7 +5,7 @@ Chart.register(...registerables)
 
 export default class extends Controller {
   static targets = ["canvas"]
-  static values = { data: Array, range: String }
+  static values = { data: Array, range: String, unit: String, label: String, fetchUrl: String }
 
   connect() {
     this.renderChart()
@@ -25,9 +25,10 @@ export default class extends Controller {
     const data = this.dataValue
     if (!data.length) return
 
-    // Thin out labels so the x-axis isn't crowded
     const labelCount = data.length
     const maxTicks = 12
+    const unit = this.unitValue
+    const label = this.labelValue
 
     const ctx = this.canvasTarget.getContext("2d")
     this.chart = new Chart(ctx, {
@@ -36,7 +37,7 @@ export default class extends Controller {
         labels: data.map(d => d.date),
         datasets: [
           {
-            label: "Weight",
+            label: label,
             data: data.map(d => d.value),
             borderColor: "rgb(59, 130, 246)",
             backgroundColor: "rgba(59, 130, 246, 0.1)",
@@ -87,7 +88,7 @@ export default class extends Controller {
             grid: { display: false }
           },
           y: {
-            title: { display: true, text: "lbs" },
+            title: { display: true, text: unit },
             grid: { color: "rgba(0, 0, 0, 0.05)" }
           }
         },
@@ -110,7 +111,6 @@ export default class extends Controller {
     const range = event.currentTarget.dataset.range
     const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
 
-    // Update button styles
     this.element.querySelectorAll("button[data-action]").forEach(btn => {
       if (btn.dataset.range === range) {
         btn.className = "px-4 py-2 text-sm font-medium rounded-lg transition bg-blue-600 text-white"
@@ -119,7 +119,7 @@ export default class extends Controller {
       }
     })
 
-    const response = await fetch(`/weight_entries.json?range=${range}`, {
+    const response = await fetch(`${this.fetchUrlValue}.json?range=${range}`, {
       headers: {
         "Accept": "application/json",
         "X-CSRF-Token": csrfToken

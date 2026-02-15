@@ -18,7 +18,9 @@
       "Bash(chmod:*)",
       "Bash(bin/rails importmap:install:*)",
       "Bash(bin/rails turbo:install:*)",
-      "Bash(bin/rails stimulus:install:*)"
+      "Bash(bin/rails stimulus:install:*)",
+      "Bash(bin/rails db:seed:*)",
+      "Bash(RAILS_ENV=development bin/rails runner:*)"
     ]
   }
 }
