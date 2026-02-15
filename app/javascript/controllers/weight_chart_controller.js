@@ -1,6 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
 import { Chart, registerables } from "chart.js"
-import "chartjs-adapter-date-fns"
 
 Chart.register(...registerables)
 
@@ -26,6 +25,10 @@ export default class extends Controller {
     const data = this.dataValue
     if (!data.length) return
 
+    // Thin out labels so the x-axis isn't crowded
+    const labelCount = data.length
+    const maxTicks = 12
+
     const ctx = this.canvasTarget.getContext("2d")
     this.chart = new Chart(ctx, {
       type: "line",
@@ -38,7 +41,7 @@ export default class extends Controller {
             borderColor: "rgb(59, 130, 246)",
             backgroundColor: "rgba(59, 130, 246, 0.1)",
             borderWidth: 2,
-            pointRadius: 3,
+            pointRadius: labelCount > 90 ? 0 : 3,
             pointHoverRadius: 5,
             tension: 0,
             fill: true
@@ -76,10 +79,10 @@ export default class extends Controller {
         },
         scales: {
           x: {
-            type: "time",
-            time: {
-              unit: data.length > 180 ? "month" : data.length > 60 ? "week" : "day",
-              tooltipFormat: "MMM d, yyyy"
+            ticks: {
+              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: maxTicks
             },
             grid: { display: false }
           },
