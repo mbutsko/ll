@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_15_210846) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_16_000002) do
   create_table "hrv_entries", force: :cascade do |t|
     t.integer "user_id", null: false
     t.date "date", null: false
@@ -19,6 +19,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_15_210846) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "date"], name: "index_hrv_entries_on_user_id_and_date", unique: true
     t.index ["user_id"], name: "index_hrv_entries_on_user_id"
+  end
+
+  create_table "measurements", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "metric_id", null: false
+    t.date "date", null: false
+    t.decimal "value", precision: 10, scale: 2, null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["metric_id"], name: "index_measurements_on_metric_id"
+    t.index ["user_id", "metric_id", "date"], name: "index_measurements_on_user_id_and_metric_id_and_date", unique: true
+    t.index ["user_id"], name: "index_measurements_on_user_id"
+  end
+
+  create_table "metrics", force: :cascade do |t|
+    t.string "slug", null: false
+    t.string "name", null: false
+    t.string "units"
+    t.decimal "reference_min", precision: 10, scale: 2
+    t.decimal "reference_max", precision: 10, scale: 2
+    t.boolean "delta_down_is_good", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_metrics_on_slug", unique: true
   end
 
   create_table "rhr_entries", force: :cascade do |t|
@@ -66,6 +91,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_15_210846) do
   end
 
   add_foreign_key "hrv_entries", "users"
+  add_foreign_key "measurements", "metrics"
+  add_foreign_key "measurements", "users"
   add_foreign_key "rhr_entries", "users"
   add_foreign_key "step_entries", "users"
   add_foreign_key "weight_entries", "users"

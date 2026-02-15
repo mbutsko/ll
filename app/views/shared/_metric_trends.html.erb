@@ -1,21 +1,21 @@
 <div class="min-h-screen bg-gray-50">
   <nav class="bg-white border-b border-gray-200">
     <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-      <span class="text-lg font-semibold text-gray-900">Weight Trends</span>
+      <span class="text-lg font-semibold text-gray-900"><%= title %></span>
       <%= link_to "Back to Dashboard", root_path, class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
     </div>
   </nav>
 
   <main class="max-w-5xl mx-auto px-6 py-10">
     <%# Trend indicator cards %>
-    <div class="grid grid-cols-2 gap-4 mb-8">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+    <div class="flex gap-4 mb-8">
+      <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">7-Day Average</p>
         <% if @trends[:avg_7d] %>
-          <p class="mt-1 text-2xl font-bold text-gray-900"><%= @trends[:avg_7d] %> <span class="text-sm font-normal text-gray-400">lbs</span></p>
+          <p class="mt-1 text-2xl font-bold text-gray-900"><%= @trends[:avg_7d] %> <span class="text-sm font-normal text-gray-400"><%= unit %></span></p>
           <% if @trends[:delta_7d] %>
-            <p class="mt-1 text-sm font-medium <%= @trends[:delta_7d] <= 0 ? 'text-green-600' : 'text-red-600' %>">
-              <%= @trends[:delta_7d] > 0 ? '+' : '' %><%= @trends[:delta_7d] %> lbs vs prior 7d
+            <p class="mt-1 text-sm font-medium <%= @trends[:delta_7d] <= 0 ? delta_down_class : delta_up_class %>">
+              <%= @trends[:delta_7d] > 0 ? '+' : '' %><%= @trends[:delta_7d] %> <%= unit %> vs prior 7d
             </p>
           <% end %>
         <% else %>
@@ -23,13 +23,13 @@
         <% end %>
       </div>
 
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+      <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">30-Day Average</p>
         <% if @trends[:avg_30d] %>
-          <p class="mt-1 text-2xl font-bold text-gray-900"><%= @trends[:avg_30d] %> <span class="text-sm font-normal text-gray-400">lbs</span></p>
+          <p class="mt-1 text-2xl font-bold text-gray-900"><%= @trends[:avg_30d] %> <span class="text-sm font-normal text-gray-400"><%= unit %></span></p>
           <% if @trends[:delta_30d] %>
-            <p class="mt-1 text-sm font-medium <%= @trends[:delta_30d] <= 0 ? 'text-green-600' : 'text-red-600' %>">
-              <%= @trends[:delta_30d] > 0 ? '+' : '' %><%= @trends[:delta_30d] %> lbs vs prior 30d
+            <p class="mt-1 text-sm font-medium <%= @trends[:delta_30d] <= 0 ? delta_down_class : delta_up_class %>">
+              <%= @trends[:delta_30d] > 0 ? '+' : '' %><%= @trends[:delta_30d] %> <%= unit %> vs prior 30d
             </p>
           <% end %>
         <% else %>
@@ -38,14 +38,17 @@
       </div>
     </div>
 
-    <div data-controller="weight-chart"
-         data-weight-chart-data-value="<%= @chart_data.to_json %>"
-         data-weight-chart-range-value="<%= @range %>">
+    <div data-controller="metric-chart"
+         data-metric-chart-data-value="<%= @chart_data.to_json %>"
+         data-metric-chart-range-value="<%= @range %>"
+         data-metric-chart-unit-value="<%= unit %>"
+         data-metric-chart-label-value="<%= label %>"
+         data-metric-chart-fetch-url-value="<%= fetch_url %>">
 
       <%# Date range filter buttons %>
       <div class="flex gap-2 mb-6">
         <% %w[30d 90d 1y all].each do |range| %>
-          <button data-action="click->weight-chart#changeRange"
+          <button data-action="click->metric-chart#changeRange"
                   data-range="<%= range %>"
                   class="px-4 py-2 text-sm font-medium rounded-lg transition
                          <%= range == @range ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50' %>">
@@ -56,7 +59,7 @@
 
       <%# Chart %>
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5" style="position: relative; height: 400px;">
-        <canvas data-weight-chart-target="canvas"></canvas>
+        <canvas data-metric-chart-target="canvas"></canvas>
       </div>
     </div>
   </main>
