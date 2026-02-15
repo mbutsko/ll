@@ -1,0 +1,99 @@
+<div class="min-h-screen bg-gray-50">
+  <nav class="bg-white border-b border-gray-200">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <span class="text-lg font-semibold text-gray-900">Daily Log</span>
+      <%= button_to "Sign out", destroy_user_session_path, method: :delete,
+            class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-6 py-10">
+    <h1 class="text-2xl font-bold text-gray-900 mb-8">Good <%= time_greeting %>, <%= current_user.email.split('@').first %></h1>
+
+    <%
+      metrics = [
+        { name: "Weight",              entry: @todays_weight, model: WeightEntry, unit: "lbs", step: 0.1, min: 0.1, placeholder: "lbs" },
+        { name: "HRV",                 entry: @todays_hrv,    model: HrvEntry,    unit: "ms",  step: 1,   min: 1,   placeholder: "ms" },
+        { name: "Resting Heart Rate",  entry: @todays_rhr,    model: RhrEntry,    unit: "bpm", step: 1,   min: 1,   placeholder: "bpm" },
+        { name: "Steps Yesterday",     entry: @todays_steps,  model: StepEntry,   unit: nil,   step: 1,   min: 0,   placeholder: "steps" },
+      ]
+      pending  = metrics.reject { |m| m[:entry] }
+      recorded = metrics.select { |m| m[:entry] }
+    %>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <%# Left column: pending %>
+      <div>
+        <% if pending.any? %>
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">To Log</p>
+          <div class="space-y-3">
+            <% pending.each do |m| %>
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <%= form_with model: m[:model].new, class: "flex items-end gap-3" do |f| %>
+                  <div class="flex-1">
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"><%= m[:name] %></p>
+                    <%= f.number_field :value, step: m[:step], min: m[:min], required: true, placeholder: m[:placeholder],
+                          class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
+                  </div>
+                  <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">To Log</p>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 text-center text-gray-400">
+            All done for today
+          </div>
+        <% end %>
+      </div>
+
+      <%# Right column: recorded %>
+      <div>
+        <% if recorded.any? %>
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Recorded</p>
+          <div class="space-y-3">
+            <% recorded.each do |m| %>
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-medium text-gray-500 uppercase tracking-wide"><%= m[:name] %></p>
+                  <p class="mt-1 text-2xl font-bold text-gray-900">
+                    <%= m[:unit] ? "#{m[:entry].value} " : number_with_delimiter(m[:entry].value) %>
+                    <% if m[:unit] %>
+                      <span class="text-sm font-normal text-gray-400"><%= m[:unit] %></span>
+                    <% end %>
+                  </p>
+                </div>
+                <div class="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
+                  <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <div class="mt-12">
+      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">API Access</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-gray-500 mb-2">Your API Token</p>
+            <details class="group">
+              <summary class="text-sm text-blue-600 hover:text-blue-800 font-medium transition cursor-pointer list-none">
+                <span class="group-open:hidden">Reveal</span>
+                <span class="hidden group-open:inline">Hide</span>
+              </summary>
+              <code class="mt-2 inline-block text-sm bg-gray-100 px-3 py-1.5 rounded font-mono text-gray-800 break-all select-all"><%= current_user.api_token %></code>
+            </details>
+          </div>
+          <%= button_to "Regenerate", regenerate_api_token_path,
+                class: "ml-4 text-sm text-red-600 hover:text-red-800 font-medium transition cursor-pointer",
+                data: { turbo_confirm: "This will invalidate your current token. Continue?" } %>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

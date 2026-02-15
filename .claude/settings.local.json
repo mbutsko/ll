@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/mike/code/ll log --oneline -10)",
+      "Bash(git -C /Users/mike/code/ll status)",
+      "Bash(bundle install:*)",
+      "Bash(rails generate:*)",
+      "Bash(rails db:migrate:*)",
+      "Bash(rails routes:*)",
+      "Bash(bin/rails generate:*)",
+      "Bash(bin/rails db:migrate:*)",
+      "Bash(ls:*)",
+      "Bash(bundle exec tailwindcss --help:*)",
+      "Bash(bin/rails tailwindcss:build:*)",
+      "Bash(bin/rails db:rollback:*)",
+      "Bash(bin/rails routes:*)",
+      "Bash(bin/rails runner:*)",
+      "Bash(chmod:*)"
+    ]
+  }
+}
