@@ -63,6 +63,9 @@
                       <span class="text-sm font-normal text-gray-400"><%= m[:unit] %></span>
                     <% end %>
                   </p>
+                  <% if m[:model] == WeightEntry %>
+                    <%= link_to "View Trends", weight_entries_path, class: "mt-2 inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
+                  <% end %>
                 </div>
                 <div class="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
                   <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
@@ -75,7 +78,7 @@
         <% end %>
       </div>
     </div>
-    <div class="mt-12">
+    <div class="mt-8">
       <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">API Access</p>
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <div class="flex items-center justify-between">

@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  resources :weight_entries, only: [:create]
+  resources :weight_entries, only: [:index, :create]
   resources :hrv_entries, only: [:create]
   resources :rhr_entries, only: [:create]
   resources :step_entries, only: [:create]

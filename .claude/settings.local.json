@@ -15,7 +15,10 @@
       "Bash(bin/rails db:rollback:*)",
       "Bash(bin/rails routes:*)",
       "Bash(bin/rails runner:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(bin/rails importmap:install:*)",
+      "Bash(bin/rails turbo:install:*)",
+      "Bash(bin/rails stimulus:install:*)"
     ]
   }
 }
