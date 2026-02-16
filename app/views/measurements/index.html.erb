@@ -2,6 +2,7 @@
     title: "#{@metric.name} Trends",
     unit: @metric.units || "",
     label: @metric.name,
+    daily: @metric.daily_loggable?,
     fetch_url: measurement_path(metric_slug: @metric.slug),
     delta_down_class: @metric.delta_down_is_good ? "text-green-600" : "text-red-600",
     delta_up_class: @metric.delta_down_is_good ? "text-red-600" : "text-green-600" %>

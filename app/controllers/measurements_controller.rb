@@ -1,8 +1,11 @@
 class MeasurementsController < ApplicationController
+  skip_before_action :authenticate_user!, only: [:index]
+
   def index
     @metric = Metric.find_by_slug!(params[:metric_slug])
 
-    range = params[:range] || "90d"
+    default_range = @metric.daily_loggable? ? "90d" : "all"
+    range = params[:range] || default_range
     since = case range
             when "30d" then 30.days.ago.to_date
             when "90d" then 90.days.ago.to_date
@@ -12,8 +15,9 @@ class MeasurementsController < ApplicationController
             end
 
     @range = range
-    @chart_data = Measurement.chart_data(user: current_user, metric: @metric, since: since)
-    @trends = Measurement.trend_indicators(user: current_user, metric: @metric)
+    user = current_user || User.first
+    @chart_data = Measurement.chart_data(user: user, metric: @metric, since: since)
+    @trends = Measurement.trend_indicators(user: user, metric: @metric)
 
     respond_to do |format|
       format.html

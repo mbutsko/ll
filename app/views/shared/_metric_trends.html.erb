@@ -2,48 +2,53 @@
   <nav class="bg-white border-b border-gray-200">
     <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
       <span class="text-lg font-semibold text-gray-900"><%= title %></span>
-      <%= link_to "Back to Dashboard", root_path, class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
+      <% if user_signed_in? %>
+        <%= link_to "Back to Dashboard", root_path, class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
+      <% end %>
     </div>
   </nav>
 
   <main class="max-w-5xl mx-auto px-6 py-10">
-    <%# Trend indicator cards %>
-    <div class="flex gap-4 mb-8">
-      <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">7-Day Average</p>
-        <% if @trends[:avg_7d] %>
-          <p class="mt-1 text-2xl font-bold text-gray-900"><%= @trends[:avg_7d] %> <span class="text-sm font-normal text-gray-400"><%= unit %></span></p>
-          <% if @trends[:delta_7d] %>
-            <p class="mt-1 text-sm font-medium <%= @trends[:delta_7d] <= 0 ? delta_down_class : delta_up_class %>">
-              <%= @trends[:delta_7d] > 0 ? '+' : '' %><%= @trends[:delta_7d] %> <%= unit %> vs prior 7d
-            </p>
+    <% if local_assigns.fetch(:daily, false) %>
+      <%# Trend indicator cards %>
+      <div class="flex gap-4 mb-8">
+        <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">7-Day Average</p>
+          <% if @trends[:avg_7d] %>
+            <p class="mt-1 text-2xl font-bold text-gray-900"><%= @trends[:avg_7d] %> <span class="text-sm font-normal text-gray-400"><%= unit %></span></p>
+            <% if @trends[:delta_7d] %>
+              <p class="mt-1 text-sm font-medium <%= @trends[:delta_7d] <= 0 ? delta_down_class : delta_up_class %>">
+                <%= @trends[:delta_7d] > 0 ? '+' : '' %><%= @trends[:delta_7d] %> <%= unit %> vs prior 7d
+              </p>
+            <% end %>
+          <% else %>
+            <p class="mt-1 text-sm text-gray-400">Not enough data</p>
           <% end %>
-        <% else %>
-          <p class="mt-1 text-sm text-gray-400">Not enough data</p>
-        <% end %>
-      </div>
+        </div>
 
-      <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">30-Day Average</p>
-        <% if @trends[:avg_30d] %>
-          <p class="mt-1 text-2xl font-bold text-gray-900"><%= @trends[:avg_30d] %> <span class="text-sm font-normal text-gray-400"><%= unit %></span></p>
-          <% if @trends[:delta_30d] %>
-            <p class="mt-1 text-sm font-medium <%= @trends[:delta_30d] <= 0 ? delta_down_class : delta_up_class %>">
-              <%= @trends[:delta_30d] > 0 ? '+' : '' %><%= @trends[:delta_30d] %> <%= unit %> vs prior 30d
-            </p>
+        <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">30-Day Average</p>
+          <% if @trends[:avg_30d] %>
+            <p class="mt-1 text-2xl font-bold text-gray-900"><%= @trends[:avg_30d] %> <span class="text-sm font-normal text-gray-400"><%= unit %></span></p>
+            <% if @trends[:delta_30d] %>
+              <p class="mt-1 text-sm font-medium <%= @trends[:delta_30d] <= 0 ? delta_down_class : delta_up_class %>">
+                <%= @trends[:delta_30d] > 0 ? '+' : '' %><%= @trends[:delta_30d] %> <%= unit %> vs prior 30d
+              </p>
+            <% end %>
+          <% else %>
+            <p class="mt-1 text-sm text-gray-400">Not enough data</p>
           <% end %>
-        <% else %>
-          <p class="mt-1 text-sm text-gray-400">Not enough data</p>
-        <% end %>
+        </div>
       </div>
-    </div>
+    <% end %>
 
     <div data-controller="metric-chart"
          data-metric-chart-data-value="<%= @chart_data.to_json %>"
          data-metric-chart-range-value="<%= @range %>"
          data-metric-chart-unit-value="<%= unit %>"
          data-metric-chart-label-value="<%= label %>"
-         data-metric-chart-fetch-url-value="<%= fetch_url %>">
+         data-metric-chart-fetch-url-value="<%= fetch_url %>"
+         data-metric-chart-daily-value="<%= local_assigns.fetch(:daily, false) %>">
 
       <%# Date range filter buttons %>
       <div class="flex gap-2 mb-6">
