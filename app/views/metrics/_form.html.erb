@@ -45,6 +45,12 @@
     <p class="text-xs text-gray-400">(e.g. weight, resting heart rate)</p>
   </div>
 
+  <div class="flex items-center gap-2">
+    <%= f.check_box :daily_loggable, class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+    <%= f.label :daily_loggable, "Show on daily log", class: "text-sm text-gray-700" %>
+    <p class="text-xs text-gray-400">(appears in the dashboard as expected to log each day)</p>
+  </div>
+
   <div class="flex items-center gap-3 pt-2">
     <%= f.submit class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
     <%= link_to "Cancel", metrics_path, class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
