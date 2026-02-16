@@ -32,7 +32,7 @@ if [[ ! -f "$CSV_FILE" ]]; then
   exit 1
 fi
 
-BASE_URL="${LL_API_URL:-https://ll.fly.dev}"
+BASE_URL="${LL_API_URL:-https://lifeledger.fly.dev}"
 BATCH_SIZE=50
 batch="[]"
 count=0

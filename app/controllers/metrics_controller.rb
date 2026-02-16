@@ -42,6 +42,6 @@ class MetricsController < ApplicationController
   end
 
   def metric_params
-    params.require(:metric).permit(:name, :slug, :units, :reference_min, :reference_max, :delta_down_is_good)
+    params.require(:metric).permit(:name, :slug, :units, :reference_min, :reference_max, :delta_down_is_good, :daily_loggable)
   end
 end

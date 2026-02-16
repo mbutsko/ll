@@ -31,6 +31,9 @@
                 &middot; range: <%= metric.reference_min || "–" %> – <%= metric.reference_max || "–" %>
               <% end %>
               &middot; <%= metric.delta_down_is_good? ? "lower is better" : "higher is better" %>
+              <% if metric.daily_loggable? %>
+                &middot; <span class="text-green-600">daily</span>
+              <% end %>
             </p>
           </div>
           <div class="flex items-center gap-3">
