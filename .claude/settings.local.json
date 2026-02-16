@@ -20,7 +20,9 @@
       "Bash(bin/rails turbo:install:*)",
       "Bash(bin/rails stimulus:install:*)",
       "Bash(bin/rails db:seed:*)",
-      "Bash(RAILS_ENV=development bin/rails runner:*)"
+      "Bash(RAILS_ENV=development bin/rails runner:*)",
+      "Bash(./post_measurements.sh:*)",
+      "Bash(./create_metric.sh:*)"
     ]
   }
 }

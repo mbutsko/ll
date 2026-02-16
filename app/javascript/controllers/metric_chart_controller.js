@@ -5,7 +5,7 @@ Chart.register(...registerables)
 
 export default class extends Controller {
   static targets = ["canvas"]
-  static values = { data: Array, range: String, unit: String, label: String, fetchUrl: String }
+  static values = { data: Array, range: String, unit: String, label: String, fetchUrl: String, daily: { type: Boolean, default: false } }
 
   connect() {
     this.renderChart()
@@ -47,28 +47,30 @@ export default class extends Controller {
             tension: 0,
             fill: true
           },
-          {
-            label: "7-Day Avg",
-            data: data.map(d => d.avg_7d),
-            borderColor: "rgb(245, 158, 11)",
-            borderWidth: 2,
-            borderDash: [6, 3],
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            tension: 0.3,
-            fill: false
-          },
-          {
-            label: "30-Day Avg",
-            data: data.map(d => d.avg_30d),
-            borderColor: "rgb(239, 68, 68)",
-            borderWidth: 2,
-            borderDash: [6, 3],
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            tension: 0.3,
-            fill: false
-          }
+          ...(this.dailyValue ? [
+            {
+              label: "7-Day Avg",
+              data: data.map(d => d.avg_7d),
+              borderColor: "rgb(245, 158, 11)",
+              borderWidth: 2,
+              borderDash: [6, 3],
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              tension: 0.3,
+              fill: false
+            },
+            {
+              label: "30-Day Avg",
+              data: data.map(d => d.avg_30d),
+              borderColor: "rgb(239, 68, 68)",
+              borderWidth: 2,
+              borderDash: [6, 3],
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              tension: 0.3,
+              fill: false
+            }
+          ] : [])
         ]
       },
       options: {
