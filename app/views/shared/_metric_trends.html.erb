@@ -1,10 +1,26 @@
 <div class="min-h-screen bg-gray-50">
   <nav class="bg-white border-b border-gray-200">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-      <span class="text-lg font-semibold text-gray-900"><%= title %></span>
-      <% if user_signed_in? %>
-        <%= link_to "Back to Dashboard", root_path, class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
-      <% end %>
+    <div class="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <%= link_to "&larr;".html_safe, root_path, class: "text-lg text-gray-400 hover:text-gray-600 transition no-underline" %>
+        <span class="text-lg font-semibold text-gray-900"><%= title %></span>
+      </div>
+      <div class="relative" data-controller="metric-search">
+        <div class="relative">
+          <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          <input type="text"
+                 placeholder="Search metrics…"
+                 autocomplete="off"
+                 data-metric-search-target="input"
+                 data-action="input->metric-search#onInput keydown->metric-search#onKeydown blur->metric-search#onBlur"
+                 class="w-56 pl-8 pr-10 py-1.5 text-sm bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20 placeholder-gray-400 transition-all">
+          <kbd class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] font-medium text-gray-400 bg-gray-200/70 px-1.5 py-0.5 rounded" data-metric-search-target="shortcutHint">/</kbd>
+        </div>
+        <div data-metric-search-target="results"
+             class="hidden absolute right-0 z-50 mt-1.5 w-72 bg-white border border-gray-200 rounded-xl shadow-xl shadow-gray-200/50 max-h-64 overflow-y-auto overflow-x-hidden"></div>
+      </div>
     </div>
   </nav>
 

@@ -11,7 +11,11 @@ Rails.application.routes.draw do
   post "api_token/regenerate", to: "api_tokens#regenerate", as: :regenerate_api_token
 
   namespace :api do
-    resources :metrics, only: [:create]
+    resources :metrics, only: [:create] do
+      collection do
+        get :search
+      end
+    end
     resources :measurements, only: [:create]
   end
 
