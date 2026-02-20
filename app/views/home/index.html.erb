@@ -69,8 +69,12 @@
                       <span class="text-sm font-normal text-gray-400"><%= m[:unit] %></span>
                     <% end %>
                   </p>
-                  <%= link_to "View Trends", measurement_path(metric_slug: m[:metric].slug),
-                        class: "mt-2 inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
+                  <div class="mt-2 flex items-center gap-3">
+                    <%= link_to "View Trends", measurement_path(metric_slug: m[:metric].slug),
+                          class: "inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
+                    <%= link_to "Edit", edit_measurement_path(m[:entry]),
+                          class: "inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 transition" %>
+                  </div>
                 </div>
                 <div class="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
                   <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
@@ -85,6 +89,16 @@
     </div>
     <div class="mt-8">
       <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Settings</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-900">Add Measurement</p>
+            <p class="text-xs text-gray-400">Log a measurement for any date with notes</p>
+          </div>
+          <%= link_to "Add", new_measurement_path,
+                class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
+        </div>
+      </div>
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
         <div class="flex items-center justify-between">
           <div>

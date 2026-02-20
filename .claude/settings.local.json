@@ -22,7 +22,8 @@
       "Bash(bin/rails db:seed:*)",
       "Bash(RAILS_ENV=development bin/rails runner:*)",
       "Bash(./post_measurements.sh:*)",
-      "Bash(./create_metric.sh:*)"
+      "Bash(./create_metric.sh:*)",
+      "Bash(bin/rails test:*)"
     ]
   }
 }

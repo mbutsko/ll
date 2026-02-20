@@ -11,7 +11,7 @@ usage() {
   echo ""
   echo "Environment:"
   echo "  LL_API_TOKEN — API bearer token (required)"
-  echo "  LL_API_URL   — base URL (default: https://ll.fly.dev)"
+  echo "  LL_API_URL   — base URL (default: https://lfeledger.fly.dev)"
   exit 1
 }
 
