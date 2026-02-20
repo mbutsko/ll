@@ -39,4 +39,45 @@ class MeasurementsController < ApplicationController
       redirect_to root_path, alert: measurement.errors.full_messages.to_sentence
     end
   end
+
+  def new
+    @measurement = current_user.measurements.build(date: Date.current)
+    if params[:metric_slug].present?
+      @measurement.metric = Metric.find_by_slug(params[:metric_slug])
+    end
+    @metrics = Metric.order(:name)
+  end
+
+  def edit
+    @measurement = current_user.measurements.find(params[:id])
+    @metrics = Metric.order(:name)
+  end
+
+  def full_create
+    @measurement = current_user.measurements.build(measurement_params)
+
+    if @measurement.save
+      redirect_to root_path
+    else
+      @metrics = Metric.order(:name)
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    @measurement = current_user.measurements.find(params[:id])
+
+    if @measurement.update(measurement_params)
+      redirect_to root_path
+    else
+      @metrics = Metric.order(:name)
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def measurement_params
+    params.require(:measurement).permit(:metric_id, :date, :value, :notes)
+  end
 end
