@@ -1,4 +1,10 @@
 class ExerciseLogsController < ApplicationController
+  def destroy
+    @exercise_log = current_user.exercise_logs.find(params[:id])
+    @exercise_log.destroy
+    redirect_to root_path, notice: "Exercise entry deleted."
+  end
+
   def create
     @exercise_log = current_user.exercise_logs.new(exercise_log_params)
     @exercise_log.performed_at = Time.current
@@ -13,6 +19,6 @@ class ExerciseLogsController < ApplicationController
   private
 
   def exercise_log_params
-    params.require(:exercise_log).permit(:exercise_id, :value)
+    params.require(:exercise_log).permit(:exercise_id, :value, :weight_lbs)
   end
 end

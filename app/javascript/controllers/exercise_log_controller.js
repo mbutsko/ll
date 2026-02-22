@@ -1,8 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "results", "exerciseId", "value", "unitLabel", "selectedName"]
-  static values = { lastValues: Object }
+  static targets = ["input", "results", "exerciseId", "value", "unitLabel", "selectedName", "weightField", "weightInput"]
+  static values = { lastValues: Object, lastWeights: Object }
 
   connect() {
     this.selectedIndex = -1
@@ -58,17 +58,28 @@ export default class extends Controller {
   selectResult(event) {
     event.preventDefault()
     const el = event.currentTarget
-    this.selectExercise(el.dataset.id, el.dataset.name, el.dataset.unitLabel)
+    this.selectExercise(el.dataset.id, el.dataset.name, el.dataset.unitLabel, el.dataset.exerciseType)
   }
 
-  selectExercise(id, name, unitLabel) {
+  selectExercise(id, name, unitLabel, exerciseType) {
     this.exerciseIdTarget.value = id
     this.selectedNameTarget.textContent = name
     this.selectedNameTarget.classList.remove("hidden")
     this.unitLabelTarget.textContent = unitLabel
+    this._selectedType = exerciseType
     const lastValue = this.lastValuesValue[id]
     if (lastValue != null) {
       this.valueTarget.value = lastValue
+    }
+    if (exerciseType === "reps" && this.hasWeightFieldTarget) {
+      this.weightFieldTarget.classList.remove("hidden")
+      const lastWeight = this.lastWeightsValue[id]
+      if (lastWeight != null) {
+        this.weightInputTarget.value = lastWeight
+      }
+    } else if (this.hasWeightFieldTarget) {
+      this.weightFieldTarget.classList.add("hidden")
+      this.weightInputTarget.value = ""
     }
     this.inputTarget.value = ""
     this.inputTarget.classList.add("hidden")
@@ -81,6 +92,10 @@ export default class extends Controller {
     this.selectedNameTarget.classList.add("hidden")
     this.inputTarget.classList.remove("hidden")
     this.unitLabelTarget.textContent = ""
+    if (this.hasWeightFieldTarget) {
+      this.weightFieldTarget.classList.add("hidden")
+      this.weightInputTarget.value = ""
+    }
     this.inputTarget.focus()
   }
 
@@ -110,7 +125,7 @@ export default class extends Controller {
         event.preventDefault()
         if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
           const el = items[this.selectedIndex]
-          this.selectExercise(el.dataset.id, el.dataset.name, el.dataset.unitLabel)
+          this.selectExercise(el.dataset.id, el.dataset.name, el.dataset.unitLabel, el.dataset.exerciseType)
         }
         break
       case "Escape":

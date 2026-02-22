@@ -1,4 +1,10 @@
 class FoodLogsController < ApplicationController
+  def destroy
+    @food_log = current_user.food_logs.find(params[:id])
+    @food_log.destroy
+    redirect_to root_path, notice: "Food entry deleted."
+  end
+
   def create
     @food_log = current_user.food_logs.new(food_log_params)
     @food_log.consumed_at = Time.current

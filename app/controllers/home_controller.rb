@@ -10,10 +10,11 @@ class HomeController < ApplicationController
       .where(performed_at: Date.current.all_day)
       .order(performed_at: :desc)
 
-    @last_exercise_values = current_user.exercise_logs
-      .select("exercise_id, value")
+    last_exercise_logs = current_user.exercise_logs
+      .select("exercise_id, value, weight_lbs")
       .where(id: ExerciseLog.select("MAX(id)").where(user_id: current_user.id).group(:exercise_id))
-      .each_with_object({}) { |log, h| h[log.exercise_id] = log.value }
+    @last_exercise_values = last_exercise_logs.each_with_object({}) { |log, h| h[log.exercise_id] = log.value }
+    @last_exercise_weights = last_exercise_logs.each_with_object({}) { |log, h| h[log.exercise_id] = log.weight_lbs if log.weight_lbs }
 
     @todays_food_logs = current_user.food_logs
       .includes(:food)

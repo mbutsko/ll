@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_22_200004) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_22_200005) do
   create_table "exercise_logs", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "exercise_id", null: false
@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_22_200004) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.decimal "value", precision: 10, scale: 2, null: false
+    t.decimal "weight_lbs", precision: 6, scale: 1
     t.index ["exercise_id"], name: "index_exercise_logs_on_exercise_id"
     t.index ["user_id", "exercise_id"], name: "index_exercise_logs_on_user_id_and_exercise_id"
     t.index ["user_id", "performed_at"], name: "index_exercise_logs_on_user_id_and_performed_at"
