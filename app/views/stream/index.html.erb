@@ -109,7 +109,7 @@
                   </div>
                   <div class="flex flex-wrap items-center gap-1">
                     <% record.each_with_index do |log, i| %>
-                      <span class="text-sm text-gray-900"><%= log.exercise.name %></span>
+                      <span class="text-sm text-gray-900"><%= log.exercise.display_summary(log) %></span>
                       <% if user_signed_in? %>
                         <%= link_to edit_exercise_log_path(log), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
                           <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

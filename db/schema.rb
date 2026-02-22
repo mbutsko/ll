@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_22_200005) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_22_200007) do
   create_table "exercise_logs", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.decimal "distance_miles", precision: 6, scale: 2
     t.integer "exercise_id", null: false
     t.text "notes"
     t.datetime "performed_at", null: false
@@ -29,6 +30,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_22_200005) do
   create_table "exercises", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "exercise_type", default: "reps", null: false
+    t.boolean "has_distance", default: false, null: false
+    t.boolean "has_duration", default: false, null: false
+    t.boolean "has_reps", default: false, null: false
+    t.boolean "has_weight", default: false, null: false
     t.string "name", null: false
     t.string "slug", null: false
     t.datetime "updated_at", null: false

@@ -21,9 +21,25 @@
   </div>
 
   <div>
-    <%= f.label :exercise_type, "Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
-    <%= f.select :exercise_type, [["Reps (e.g. pushups, pullups)", "reps"], ["Time (e.g. wall sit, plank)", "time"]],
-          {}, class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
+    <p class="block text-sm font-medium text-gray-700 mb-2">Capabilities</p>
+    <div class="flex flex-wrap gap-4">
+      <label class="inline-flex items-center gap-1.5 cursor-pointer">
+        <%= f.check_box :has_reps, class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+        <span class="text-sm text-gray-700">Reps</span>
+      </label>
+      <label class="inline-flex items-center gap-1.5 cursor-pointer">
+        <%= f.check_box :has_weight, class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+        <span class="text-sm text-gray-700">Weight</span>
+      </label>
+      <label class="inline-flex items-center gap-1.5 cursor-pointer">
+        <%= f.check_box :has_duration, class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+        <span class="text-sm text-gray-700">Duration</span>
+      </label>
+      <label class="inline-flex items-center gap-1.5 cursor-pointer">
+        <%= f.check_box :has_distance, class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+        <span class="text-sm text-gray-700">Distance</span>
+      </label>
+    </div>
   </div>
 
   <div class="flex items-center gap-3 pt-2">
