@@ -44,9 +44,10 @@ export default class extends Controller {
               data-id="${f.id}"
               data-name="${this.escapeHtml(f.name)}"
               data-default-unit="${f.default_unit}"
+              data-default-serving="${f.default_serving || ''}"
               data-action="mousedown->food-log#selectResult">
           <span>${this.escapeHtml(f.name)}</span>
-          <span class="text-xs text-gray-400">${f.default_unit}</span>
+          <span class="text-xs text-gray-400">${f.default_serving ? f.default_serving + ' ' : ''}${f.default_unit}</span>
         </div>`
       ).join("") + `<div class="h-1"></div>`
     }
@@ -56,14 +57,17 @@ export default class extends Controller {
   selectResult(event) {
     event.preventDefault()
     const el = event.currentTarget
-    this.selectFood(el.dataset.id, el.dataset.name, el.dataset.defaultUnit)
+    this.selectFood(el.dataset.id, el.dataset.name, el.dataset.defaultUnit, el.dataset.defaultServing)
   }
 
-  selectFood(id, name, defaultUnit) {
+  selectFood(id, name, defaultUnit, defaultServing) {
     this.foodIdTarget.value = id
     this.selectedNameTarget.textContent = name
     this.selectedNameTarget.classList.remove("hidden")
     this.unitSelectTarget.value = defaultUnit
+    if (defaultServing) {
+      this.valueTarget.value = defaultServing
+    }
     this.inputTarget.value = ""
     this.inputTarget.classList.add("hidden")
     this.close()
@@ -103,7 +107,7 @@ export default class extends Controller {
         event.preventDefault()
         if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
           const el = items[this.selectedIndex]
-          this.selectFood(el.dataset.id, el.dataset.name, el.dataset.defaultUnit)
+          this.selectFood(el.dataset.id, el.dataset.name, el.dataset.defaultUnit, el.dataset.defaultServing)
         }
         break
       case "Escape":

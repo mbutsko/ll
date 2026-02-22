@@ -9,7 +9,7 @@ class Api::FoodsController < Api::BaseController
     end
 
     render json: foods.order(:name).map { |f|
-      { id: f.id, name: f.name, slug: f.slug, default_unit: f.default_unit }
+      { id: f.id, name: f.name, slug: f.slug, default_unit: f.default_unit, default_serving: f.default_serving }
     }
   end
 end
