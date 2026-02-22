@@ -21,20 +21,20 @@ class StreamController < ApplicationController
     end
 
     if types.include?("food")
-      scope = @user.food_logs.includes(:food)
+      scope = @user.food_logs.includes(:food).order(:consumed_at)
       scope = scope.where(consumed_at: start_date.beginning_of_day..) if start_date
       scope = scope.where(consumed_at: ..end_date.end_of_day) if end_date
-      scope.find_each do |fl|
-        entries << { type: "food", record: fl, timestamp: fl.consumed_at }
+      scope.to_a.slice_when { |a, b| (a.consumed_at - b.consumed_at).abs > 30.minutes }.each do |cluster|
+        entries << { type: "food_cluster", record: cluster, timestamp: cluster.first.consumed_at }
       end
     end
 
     if types.include?("exercise")
-      scope = @user.exercise_logs.includes(:exercise)
+      scope = @user.exercise_logs.includes(:exercise).order(:performed_at)
       scope = scope.where(performed_at: start_date.beginning_of_day..) if start_date
       scope = scope.where(performed_at: ..end_date.end_of_day) if end_date
-      scope.find_each do |el|
-        entries << { type: "exercise", record: el, timestamp: el.performed_at }
+      scope.to_a.slice_when { |a, b| (a.performed_at - b.performed_at).abs > 30.minutes }.each do |cluster|
+        entries << { type: "exercise_cluster", record: cluster, timestamp: cluster.first.performed_at }
       end
     end
 
@@ -47,11 +47,10 @@ class StreamController < ApplicationController
       end
     end
 
-    if start_date || end_date
-      @entries = entries.sort_by { |e| e[:timestamp] }
-    else
-      @entries = entries.sort_by { |e| e[:timestamp] }.reverse
-    end
+    @entries = entries.sort_by { |e| e[:timestamp] }
+      .group_by { |e| e[:timestamp].to_date }
+      .sort_by { |date, _| date }.reverse
+      .flat_map { |_, day_entries| day_entries }
 
     @active_types = types
     @start_date = start_date

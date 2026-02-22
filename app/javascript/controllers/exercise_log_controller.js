@@ -65,6 +65,7 @@ export default class extends Controller {
     this.exerciseIdTarget.value = id
     this.selectedNameTarget.textContent = name
     this.selectedNameTarget.classList.remove("hidden")
+    this.selectedNameTarget.classList.add("inline-flex")
     this.unitLabelTarget.textContent = unitLabel
     this._selectedType = exerciseType
     const lastValue = this.lastValuesValue[id]
@@ -90,6 +91,7 @@ export default class extends Controller {
   clearSelection() {
     this.exerciseIdTarget.value = ""
     this.selectedNameTarget.classList.add("hidden")
+    this.selectedNameTarget.classList.remove("inline-flex")
     this.inputTarget.classList.remove("hidden")
     this.unitLabelTarget.textContent = ""
     if (this.hasWeightFieldTarget) {
