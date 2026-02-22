@@ -32,6 +32,6 @@ class ExerciseLogsController < ApplicationController
   private
 
   def exercise_log_params
-    params.require(:exercise_log).permit(:exercise_id, :value, :weight_lbs, :performed_at)
+    params.require(:exercise_log).permit(:exercise_id, :value, :weight_lbs, :distance_miles, :performed_at)
   end
 end

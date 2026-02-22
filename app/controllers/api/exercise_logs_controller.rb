@@ -24,7 +24,7 @@ module Api
     private
 
     def exercise_log_params
-      params.require(:exercise_log).permit(:value, :weight_lbs)
+      params.require(:exercise_log).permit(:value, :weight_lbs, :distance_miles)
     end
   end
 end

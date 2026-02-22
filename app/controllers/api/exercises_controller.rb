@@ -9,7 +9,9 @@ class Api::ExercisesController < Api::BaseController
     end
 
     render json: exercises.order(:name).map { |e|
-      { id: e.id, name: e.name, slug: e.slug, exercise_type: e.exercise_type, unit_label: e.unit_label }
+      { id: e.id, name: e.name, slug: e.slug,
+        has_reps: e.has_reps, has_weight: e.has_weight,
+        has_duration: e.has_duration, has_distance: e.has_distance }
     }
   end
 end

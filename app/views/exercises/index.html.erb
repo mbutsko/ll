@@ -24,7 +24,11 @@
             <p class="font-medium text-gray-900"><%= exercise.name %></p>
             <p class="text-sm text-gray-500">
               <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs"><%= exercise.slug %></code>
-              &middot; <%= exercise.exercise_type == "time" ? "time-based (seconds)" : "rep-based" %>
+              <% %w[reps weight duration distance].each do |flag| %>
+                <% if exercise.send("has_#{flag}") %>
+                  &middot; <span class="text-xs"><%= flag %></span>
+                <% end %>
+              <% end %>
             </p>
           </div>
           <div class="flex items-center gap-3">
