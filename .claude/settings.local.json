@@ -23,7 +23,9 @@
       "Bash(RAILS_ENV=development bin/rails runner:*)",
       "Bash(./post_measurements.sh:*)",
       "Bash(./create_metric.sh:*)",
-      "Bash(bin/rails test:*)"
+      "Bash(bin/rails test:*)",
+      "Bash(find:*)",
+      "Bash(git check-ignore:*)"
     ]
   }
 }
