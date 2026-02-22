@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_22_200003) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_22_200004) do
   create_table "exercise_logs", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "exercise_id", null: false
@@ -51,6 +51,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_22_200003) do
 
   create_table "foods", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.decimal "default_serving", precision: 10, scale: 2
     t.string "default_unit", default: "grams", null: false
     t.string "name", null: false
     t.string "slug", null: false

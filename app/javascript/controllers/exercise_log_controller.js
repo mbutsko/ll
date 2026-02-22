@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["input", "results", "exerciseId", "value", "unitLabel", "selectedName"]
+  static values = { lastValues: Object }
 
   connect() {
     this.selectedIndex = -1
@@ -65,6 +66,10 @@ export default class extends Controller {
     this.selectedNameTarget.textContent = name
     this.selectedNameTarget.classList.remove("hidden")
     this.unitLabelTarget.textContent = unitLabel
+    const lastValue = this.lastValuesValue[id]
+    if (lastValue != null) {
+      this.valueTarget.value = lastValue
+    }
     this.inputTarget.value = ""
     this.inputTarget.classList.add("hidden")
     this.close()

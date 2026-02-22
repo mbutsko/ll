@@ -1,14 +1,13 @@
 <div class="min-h-screen bg-gray-50">
   <nav class="bg-white border-b border-gray-200">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <span class="text-lg font-semibold text-gray-900">Daily Log</span>
       <%= button_to "Sign out", destroy_user_session_path, method: :delete,
             class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
     </div>
   </nav>
 
-  <main class="max-w-5xl mx-auto px-6 py-10">
-    <h1 class="text-2xl font-bold text-gray-900 mb-8">Good <%= time_greeting %>, <%= current_user.email.split('@').first %></h1>
+  <main class="max-w-7xl mx-auto px-6 py-6">
 
     <%
       metrics = @metrics.map do |m|
@@ -27,17 +26,16 @@
       recorded = metrics.select { |m| m[:entry] }
     %>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <%# Left column: pending %>
-      <div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <%# Left column: logging (2/3 width) %>
+      <div class="md:col-span-2 space-y-3">
         <% if pending.any? %>
-          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">To Log</p>
-          <div class="space-y-3">
+          <div class="space-y-2">
             <% pending.each do |m| %>
-              <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
                 <%= form_with url: measurements_path(metric_slug: m[:metric].slug), method: :post, class: "flex items-end gap-3" do |f| %>
                   <div class="flex-1">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"><%= m[:name] %></p>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"><%= m[:name] %></p>
                     <%= f.number_field "measurement[value]", step: m[:step], min: m[:min], required: true, placeholder: m[:placeholder],
                           class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
                   </div>
@@ -46,242 +44,215 @@
               </div>
             <% end %>
           </div>
-        <% else %>
-          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">To Log</p>
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 text-center text-gray-400">
-            All done for today
-          </div>
         <% end %>
+
+        <div data-controller="food-log">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+            <%= form_with url: food_logs_path, method: :post, class: "flex items-end gap-3" do |f| %>
+              <input type="hidden" name="food_log[food_id]" data-food-log-target="foodId">
+              <div class="flex-1 relative">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Food</p>
+                <span data-food-log-target="selectedName" data-action="click->food-log#clearSelection"
+                      class="hidden inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                </span>
+                <input type="text" placeholder="Search foods..."
+                       data-food-log-target="input"
+                       data-action="input->food-log#onInput keydown->food-log#onKeydown blur->food-log#onBlur"
+                       autocomplete="off"
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+                <div data-food-log-target="results" class="hidden absolute z-10 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto py-1"></div>
+              </div>
+              <div class="w-28">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Amount</p>
+                <%= f.number_field "food_log[value]", step: "any", min: 0, required: true, placeholder: "0",
+                      data: { food_log_target: "value" },
+                      class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
+              </div>
+              <div class="w-36">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Unit</p>
+                <%= f.select "food_log[unit]", Food::UNITS.map { |u| [u.capitalize, u] },
+                      {}, data: { food_log_target: "unitSelect" },
+                      class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
+              </div>
+              <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
+            <% end %>
+          </div>
+
+        </div>
+
+        <div data-controller="exercise-log" data-exercise-log-last-values-value="<%= @last_exercise_values.to_json %>">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+            <%= form_with url: exercise_logs_path, method: :post, class: "flex items-end gap-3" do |f| %>
+              <input type="hidden" name="exercise_log[exercise_id]" data-exercise-log-target="exerciseId">
+              <div class="flex-1 relative">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Exercise</p>
+                <span data-exercise-log-target="selectedName" data-action="click->exercise-log#clearSelection"
+                      class="hidden inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                </span>
+                <input type="text" placeholder="Search exercises..."
+                       data-exercise-log-target="input"
+                       data-action="input->exercise-log#onInput keydown->exercise-log#onKeydown blur->exercise-log#onBlur"
+                       autocomplete="off"
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+                <div data-exercise-log-target="results" class="hidden absolute z-10 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto py-1"></div>
+              </div>
+              <div class="w-28">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                  <span data-exercise-log-target="unitLabel"></span>
+                </p>
+                <%= f.number_field "exercise_log[value]", step: 1, min: 0, required: true, placeholder: "0",
+                      data: { exercise_log_target: "value" },
+                      class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
+              </div>
+              <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
+            <% end %>
+          </div>
+
+        </div>
+
+        <div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+            <%= form_with url: journal_entries_path, method: :post, class: "space-y-2" do |f| %>
+              <textarea name="journal_entry[body]" rows="2" required placeholder="Write something..."
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition resize-y"></textarea>
+              <% if @labels.any? %>
+                <div class="flex flex-wrap gap-2">
+                  <% @labels.each do |label| %>
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                      <input type="checkbox" name="journal_entry[label_ids][]" value="<%= label.id %>"
+                        class="h-3.5 w-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                      <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium <%= label_color_classes(label.color) %>"><%= label.name %></span>
+                    </label>
+                  <% end %>
+                </div>
+              <% end %>
+              <div>
+                <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
+              </div>
+            <% end %>
+          </div>
+
+        </div>
       </div>
 
-      <%# Right column: recorded %>
+      <%# Right column: today's recorded stream (1/3 width) %>
       <div>
-        <% if recorded.any? %>
-          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Recorded</p>
-          <div class="space-y-3">
+        <div class="space-y-3">
+          <% if recorded.any? %>
             <% recorded.each do |m| %>
-              <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex items-center justify-between">
                 <div>
                   <p class="text-xs font-medium text-gray-500 uppercase tracking-wide"><%= m[:name] %></p>
-                  <p class="mt-1 text-2xl font-bold text-gray-900">
+                  <p class="mt-1 text-xl font-bold text-gray-900">
                     <%= m[:unit] ? "#{m[:entry].value} " : number_with_delimiter(m[:entry].value.to_i) %>
                     <% if m[:unit] %>
                       <span class="text-sm font-normal text-gray-400"><%= m[:unit] %></span>
                     <% end %>
                   </p>
-                  <div class="mt-2 flex items-center gap-3">
+                  <div class="mt-1 flex items-center gap-3">
                     <%= link_to "View Trends", measurement_path(metric_slug: m[:metric].slug),
                           class: "inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
                     <%= link_to "Edit", edit_measurement_path(m[:entry]),
                           class: "inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 transition" %>
                   </div>
                 </div>
-                <div class="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
-                  <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <div class="h-7 w-7 rounded-full bg-green-50 flex items-center justify-center">
+                  <svg class="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
                 </div>
               </div>
             <% end %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-    <div class="mt-8" data-controller="food-log">
-      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Log Food</p>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
-        <%= form_with url: food_logs_path, method: :post, class: "flex items-end gap-3" do |f| %>
-          <input type="hidden" name="food_log[food_id]" data-food-log-target="foodId">
-          <div class="flex-1 relative">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Food</p>
-            <span data-food-log-target="selectedName" data-action="click->food-log#clearSelection"
-                  class="hidden inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
-            </span>
-            <input type="text" placeholder="Search foods..."
-                   data-food-log-target="input"
-                   data-action="input->food-log#onInput keydown->food-log#onKeydown blur->food-log#onBlur"
-                   autocomplete="off"
-                   class="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
-            <div data-food-log-target="results" class="hidden absolute z-10 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto py-1"></div>
-          </div>
-          <div class="w-28">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Amount</p>
-            <%= f.number_field "food_log[value]", step: "any", min: 0, required: true, placeholder: "0",
-                  data: { food_log_target: "value" },
-                  class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
-          </div>
-          <div class="w-36">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Unit</p>
-            <%= f.select "food_log[unit]", Food::UNITS.map { |u| [u.capitalize, u] },
-                  {}, data: { food_log_target: "unitSelect" },
-                  class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
-          </div>
-          <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
-        <% end %>
-      </div>
+          <% end %>
 
-      <% if @todays_food_logs.any? %>
-        <div class="space-y-2 mb-3">
-          <% @todays_food_logs.each do |log| %>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-3 flex items-center justify-between">
-              <div>
-                <span class="text-sm font-medium text-gray-900"><%= log.food.name %></span>
-                <span class="text-sm text-gray-500 ml-2"><%= log.value %> <%= log.unit %></span>
+          <% if @todays_food_logs.any? %>
+            <% @todays_food_logs.each do |log| %>
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-medium text-orange-600 uppercase tracking-wide">Food</p>
+                  <p class="text-sm font-medium text-gray-900 mt-0.5"><%= log.food.name %></p>
+                  <p class="text-xs text-gray-500"><%= log.value %> <%= log.unit %></p>
+                </div>
+                <span class="text-xs text-gray-400"><%= log.consumed_at.strftime("%-I:%M %p") %></span>
               </div>
-              <span class="text-xs text-gray-400"><%= log.consumed_at.strftime("%-I:%M %p") %></span>
-            </div>
+            <% end %>
           <% end %>
-        </div>
-      <% end %>
-    </div>
 
-    <div class="mt-8" data-controller="exercise-log">
-      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Log Exercise</p>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
-        <%= form_with url: exercise_logs_path, method: :post, class: "flex items-end gap-3" do |f| %>
-          <input type="hidden" name="exercise_log[exercise_id]" data-exercise-log-target="exerciseId">
-          <div class="flex-1 relative">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Exercise</p>
-            <span data-exercise-log-target="selectedName" data-action="click->exercise-log#clearSelection"
-                  class="hidden inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
-            </span>
-            <input type="text" placeholder="Search exercises..."
-                   data-exercise-log-target="input"
-                   data-action="input->exercise-log#onInput keydown->exercise-log#onKeydown blur->exercise-log#onBlur"
-                   autocomplete="off"
-                   class="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
-            <div data-exercise-log-target="results" class="hidden absolute z-10 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto py-1"></div>
-          </div>
-          <div class="w-28">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-              <span data-exercise-log-target="unitLabel"></span>
-            </p>
-            <%= f.number_field "exercise_log[value]", step: 1, min: 0, required: true, placeholder: "0",
-                  data: { exercise_log_target: "value" },
-                  class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
-          </div>
-          <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
-        <% end %>
-      </div>
-
-      <% if @todays_exercise_logs.any? %>
-        <div class="space-y-2 mb-3">
-          <% @todays_exercise_logs.each do |log| %>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-3 flex items-center justify-between">
-              <div>
-                <span class="text-sm font-medium text-gray-900"><%= log.exercise.name %></span>
-                <span class="text-sm text-gray-500 ml-2"><%= log.value.to_i %> <%= log.exercise.unit_label %></span>
+          <% if @todays_exercise_logs.any? %>
+            <% @todays_exercise_logs.each do |log| %>
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">Exercise</p>
+                  <p class="text-sm font-medium text-gray-900 mt-0.5"><%= log.exercise.name %></p>
+                  <p class="text-xs text-gray-500"><%= log.value.to_i %> <%= log.exercise.unit_label %></p>
+                </div>
+                <span class="text-xs text-gray-400"><%= log.performed_at.strftime("%-I:%M %p") %></span>
               </div>
-              <span class="text-xs text-gray-400"><%= log.performed_at.strftime("%-I:%M %p") %></span>
-            </div>
+            <% end %>
           <% end %>
-        </div>
-      <% end %>
-    </div>
 
-    <div class="mt-8">
-      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Journal</p>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
-        <%= form_with url: journal_entries_path, method: :post, class: "space-y-3" do |f| %>
-          <textarea name="journal_entry[body]" rows="3" required placeholder="Write something..."
-                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition resize-y"></textarea>
-          <% if @labels.any? %>
-            <div class="flex flex-wrap gap-2">
-              <% @labels.each do |label| %>
-                <label class="inline-flex items-center gap-1.5 cursor-pointer">
-                  <input type="checkbox" name="journal_entry[label_ids][]" value="<%= label.id %>"
-                    class="h-3.5 w-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                  <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium <%= label_color_classes(label.color) %>"><%= label.name %></span>
-                </label>
-              <% end %>
-            </div>
-          <% end %>
-          <div>
-            <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
-          </div>
-        <% end %>
-      </div>
-
-      <% if @todays_journal_entries.any? %>
-        <div class="space-y-2 mb-3">
-          <% @todays_journal_entries.each do |entry| %>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-3">
-              <div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm text-gray-900 whitespace-pre-wrap"><%= entry.body %></p>
-                  <div class="mt-2 flex items-center gap-2 flex-wrap">
+          <% if @todays_journal_entries.any? %>
+            <% @todays_journal_entries.each do |entry| %>
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+                <div class="flex items-start justify-between">
+                  <p class="text-xs font-medium text-purple-600 uppercase tracking-wide">Journal</p>
+                  <span class="text-xs text-gray-400"><%= entry.recorded_at.strftime("%-I:%M %p") %></span>
+                </div>
+                <p class="text-sm text-gray-900 mt-1 whitespace-pre-wrap"><%= entry.body %></p>
+                <% if entry.labels.any? %>
+                  <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">
                     <% entry.labels.each do |label| %>
                       <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium <%= label_color_classes(label.color) %>"><%= label.name %></span>
                     <% end %>
-                    <span class="text-xs text-gray-400"><%= entry.recorded_at.strftime("%-I:%M %p") %></span>
                   </div>
-                </div>
+                <% end %>
                 <%= button_to "Delete", journal_entry_path(entry), method: :delete,
-                      class: "ml-3 text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
+                      class: "mt-1 text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
                       data: { turbo_confirm: "Delete this journal entry?" } %>
               </div>
+            <% end %>
+          <% end %>
+
+          <% if recorded.empty? && @todays_food_logs.empty? && @todays_exercise_logs.empty? && @todays_journal_entries.empty? %>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 text-center text-gray-400">
+              Nothing recorded yet
             </div>
           <% end %>
         </div>
-      <% end %>
+      </div>
     </div>
 
-    <div class="mt-8">
-      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Settings</p>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-900">Add Measurement</p>
-            <p class="text-xs text-gray-400">Log a measurement for any date with notes</p>
-          </div>
+    <div class="mt-6">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+        <div class="flex items-center justify-between px-4 py-3">
+          <p class="text-sm font-medium text-gray-900">Add Measurement</p>
           <%= link_to "Add", new_measurement_path,
                 class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
         </div>
-      </div>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-900">Manage Metrics</p>
-            <p class="text-xs text-gray-400">Add, edit, or remove tracked metrics</p>
-          </div>
+        <div class="flex items-center justify-between px-4 py-3">
+          <p class="text-sm font-medium text-gray-900">Manage Metrics</p>
           <%= link_to "Manage", metrics_path,
                 class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
         </div>
-      </div>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-900">Manage Exercises</p>
-            <p class="text-xs text-gray-400">Add, edit, or remove tracked exercises</p>
-          </div>
+        <div class="flex items-center justify-between px-4 py-3">
+          <p class="text-sm font-medium text-gray-900">Manage Exercises</p>
           <%= link_to "Manage", exercises_path,
                 class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
         </div>
-      </div>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-900">Manage Foods</p>
-            <p class="text-xs text-gray-400">Add, edit, or remove tracked foods</p>
-          </div>
+        <div class="flex items-center justify-between px-4 py-3">
+          <p class="text-sm font-medium text-gray-900">Manage Foods</p>
           <%= link_to "Manage", foods_path,
                 class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
         </div>
-      </div>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-900">Manage Labels</p>
-            <p class="text-xs text-gray-400">Add, edit, or remove journal labels</p>
-          </div>
+        <div class="flex items-center justify-between px-4 py-3">
+          <p class="text-sm font-medium text-gray-900">Manage Labels</p>
           <%= link_to "Manage", labels_path,
                 class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
         </div>
       </div>
     </div>
     <div class="mt-3">
-      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">API Access</p>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
             <p class="text-sm text-gray-500 mb-2">Your API Token</p>
