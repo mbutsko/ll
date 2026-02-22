@@ -4,6 +4,8 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   resources :metrics, except: [:show]
+  resources :exercises, except: [:show]
+  resources :exercise_logs, only: [:create]
 
   get   "measurements/new",      to: "measurements#new",         as: :new_measurement
   get   "measurements/:id/edit", to: "measurements#edit",        as: :edit_measurement
@@ -22,6 +24,11 @@ Rails.application.routes.draw do
       end
     end
     resources :measurements, only: [:create]
+    resources :exercises, only: [] do
+      collection do
+        get :search
+      end
+    end
   end
 
   root "home#index"

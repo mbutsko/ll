@@ -87,6 +87,50 @@
         <% end %>
       </div>
     </div>
+    <div class="mt-8" data-controller="exercise-log">
+      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Log Exercise</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
+        <%= form_with url: exercise_logs_path, method: :post, class: "flex items-end gap-3" do |f| %>
+          <input type="hidden" name="exercise_log[exercise_id]" data-exercise-log-target="exerciseId">
+          <div class="flex-1 relative">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Exercise</p>
+            <span data-exercise-log-target="selectedName" data-action="click->exercise-log#clearSelection"
+                  class="hidden inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+            </span>
+            <input type="text" placeholder="Search exercises..."
+                   data-exercise-log-target="input"
+                   data-action="input->exercise-log#onInput keydown->exercise-log#onKeydown blur->exercise-log#onBlur"
+                   autocomplete="off"
+                   class="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+            <div data-exercise-log-target="results" class="hidden absolute z-10 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto py-1"></div>
+          </div>
+          <div class="w-28">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+              <span data-exercise-log-target="unitLabel"></span>
+            </p>
+            <%= f.number_field "exercise_log[value]", step: 1, min: 0, required: true, placeholder: "0",
+                  data: { exercise_log_target: "value" },
+                  class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
+          </div>
+          <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
+        <% end %>
+      </div>
+
+      <% if @todays_exercise_logs.any? %>
+        <div class="space-y-2 mb-3">
+          <% @todays_exercise_logs.each do |log| %>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-3 flex items-center justify-between">
+              <div>
+                <span class="text-sm font-medium text-gray-900"><%= log.exercise.name %></span>
+                <span class="text-sm text-gray-500 ml-2"><%= log.value.to_i %> <%= log.exercise.unit_label %></span>
+              </div>
+              <span class="text-xs text-gray-400"><%= log.performed_at.strftime("%-I:%M %p") %></span>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
     <div class="mt-8">
       <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Settings</p>
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
@@ -106,6 +150,16 @@
             <p class="text-xs text-gray-400">Add, edit, or remove tracked metrics</p>
           </div>
           <%= link_to "Manage", metrics_path,
+                class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-900">Manage Exercises</p>
+            <p class="text-xs text-gray-400">Add, edit, or remove tracked exercises</p>
+          </div>
+          <%= link_to "Manage", exercises_path,
                 class: "text-sm text-blue-600 hover:text-blue-800 font-medium transition" %>
         </div>
       </div>
