@@ -9,5 +9,10 @@ class HomeController < ApplicationController
       .includes(:exercise)
       .where(performed_at: Date.current.all_day)
       .order(performed_at: :desc)
+
+    @todays_food_logs = current_user.food_logs
+      .includes(:food)
+      .where(consumed_at: Date.current.all_day)
+      .order(consumed_at: :desc)
   end
 end
