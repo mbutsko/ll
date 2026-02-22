@@ -6,8 +6,8 @@ class StreamController < ApplicationController
     types = Array(params[:types]).reject(&:blank?)
     types = %w[measurements food exercise journal] if types.empty?
 
-    start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : nil
-    end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : nil
+    start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 7.days.ago.to_date
+    end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.current
 
     entries = []
 
@@ -55,5 +55,55 @@ class StreamController < ApplicationController
     @active_types = types
     @start_date = start_date
     @end_date = end_date
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @entries.map { |e| serialize_entry(e) } }
+    end
+  end
+
+  private
+
+  def serialize_entry(entry)
+    case entry[:type]
+    when "measurements"
+      {
+        type: "measurements",
+        timestamp: entry[:timestamp],
+        records: entry[:record].map { |m|
+          { metric: m.metric.slug, value: m.value, units: m.metric.units, date: m.date }
+        }
+      }
+    when "food_cluster"
+      {
+        type: "food",
+        timestamp: entry[:timestamp],
+        records: entry[:record].map { |log|
+          { food: log.food.name, value: log.value, unit: log.unit, consumed_at: log.consumed_at }
+        }
+      }
+    when "exercise_cluster"
+      {
+        type: "exercise",
+        timestamp: entry[:timestamp],
+        records: entry[:record].map { |log|
+          {
+            exercise: log.exercise.name,
+            summary: log.exercise.display_summary(log),
+            value: log.value,
+            weight_lbs: log.weight_lbs,
+            distance_miles: log.distance_miles,
+            performed_at: log.performed_at
+          }
+        }
+      }
+    when "journal"
+      {
+        type: "journal",
+        timestamp: entry[:timestamp],
+        body: entry[:record].body,
+        labels: entry[:record].labels.map(&:name)
+      }
+    end
   end
 end
