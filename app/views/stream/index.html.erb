@@ -1,0 +1,162 @@
+<div class="min-h-screen bg-gray-50">
+  <nav class="bg-white border-b border-gray-200">
+    <div class="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+      <span class="text-lg font-semibold text-gray-900">Stream</span>
+      <%= link_to "Back", root_path, class: "text-sm font-medium text-blue-600 hover:text-blue-800 transition" %>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-6 py-6">
+    <%= form_with url: stream_path, method: :get, class: "bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 mb-6" do %>
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="flex flex-wrap gap-2">
+          <% %w[measurements food exercise journal].each do |type| %>
+            <label class="inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="types[]" value="<%= type %>"
+                <%= "checked" if @active_types.include?(type) %>
+                class="hidden peer">
+              <span class="px-3 py-1.5 rounded-full text-sm font-medium border transition
+                peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600
+                bg-white text-gray-600 border-gray-300 hover:border-gray-400">
+                <%= type.capitalize %>
+              </span>
+            </label>
+          <% end %>
+        </div>
+        <div class="flex items-end gap-2">
+          <div>
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">From</p>
+            <input type="date" name="start_date" value="<%= @start_date %>"
+              class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+          </div>
+          <div>
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">To</p>
+            <input type="date" name="end_date" value="<%= @end_date %>"
+              class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+          </div>
+          <button type="submit" class="bg-blue-600 text-white font-medium px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer">
+            Filter
+          </button>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @entries.empty? %>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 text-center text-gray-400">
+        No entries found
+      </div>
+    <% else %>
+      <% @entries.group_by { |e| e[:timestamp].to_date }.each do |date, day_entries| %>
+        <div class="mb-4">
+          <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-1">
+            <%= date == Date.current ? "Today" : date == Date.yesterday ? "Yesterday" : date.strftime("%B %-d, %Y") %>
+          </h3>
+          <div class="space-y-2">
+            <% day_entries.each do |entry| %>
+              <% record = entry[:record] %>
+              <% case entry[:type] %>
+              <% when "measurement" %>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs font-medium text-green-600 uppercase tracking-wide"><%= record.metric.name %></p>
+                      <% display_val = record.value % 1 == 0 ? number_with_delimiter(record.value.to_i) : number_with_delimiter(record.value) %>
+                      <p class="text-sm font-medium text-gray-900">
+                        <%= display_val %>
+                        <% if record.metric.units.present? %>
+                          <span class="text-xs font-normal text-gray-400"><%= record.metric.units %></span>
+                        <% end %>
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <%= link_to "Trends", measurement_path(metric_slug: record.metric.slug),
+                            class: "text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
+                      <%= link_to "Edit", edit_measurement_path(record),
+                            class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                    </div>
+                  </div>
+                </div>
+
+              <% when "food" %>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs font-medium text-orange-600 uppercase tracking-wide">Food</p>
+                      <p class="text-sm font-medium text-gray-900"><%= record.food.name %></p>
+                      <% food_val = record.value % 1 == 0 ? number_with_delimiter(record.value.to_i) : number_with_delimiter(record.value) %>
+                      <p class="text-xs text-gray-500"><%= food_val %> <%= record.unit %></p>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-xs text-gray-400"><%= record.consumed_at.strftime("%-I:%M %p") %></span>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <%= link_to "Edit", edit_food_log_path(record),
+                              class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                        <%= button_to "Delete", food_log_path(record), method: :delete,
+                              class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
+                              data: { turbo_confirm: "Delete this food entry?" } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              <% when "exercise" %>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">Exercise</p>
+                      <p class="text-sm font-medium text-gray-900"><%= record.exercise.name %></p>
+                      <% ex_val = record.value % 1 == 0 ? number_with_delimiter(record.value.to_i) : number_with_delimiter(record.value) %>
+                      <p class="text-xs text-gray-500">
+                        <%= ex_val %> <%= record.exercise.unit_label %>
+                        <% if record.weight_lbs.present? && record.weight_lbs > 0 %>
+                          @ <%= record.weight_lbs % 1 == 0 ? record.weight_lbs.to_i : record.weight_lbs %> lbs
+                        <% end %>
+                      </p>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-xs text-gray-400"><%= record.performed_at.strftime("%-I:%M %p") %></span>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <%= link_to "Edit", edit_exercise_log_path(record),
+                              class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                        <%= button_to "Delete", exercise_log_path(record), method: :delete,
+                              class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
+                              data: { turbo_confirm: "Delete this exercise entry?" } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              <% when "journal" %>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-medium text-purple-600 uppercase tracking-wide">Journal</p>
+                      <p class="text-sm text-gray-900 mt-1 whitespace-pre-wrap"><%= record.body %></p>
+                      <% if record.labels.any? %>
+                        <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                          <% record.labels.each do |label| %>
+                            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium <%= label_color_classes(label.color) %>"><%= label.name %></span>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                    <div class="text-right shrink-0 ml-3">
+                      <span class="text-xs text-gray-400"><%= record.recorded_at.strftime("%-I:%M %p") %></span>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <%= link_to "Edit", edit_journal_entry_path(record),
+                              class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                        <%= button_to "Delete", journal_entry_path(record), method: :delete,
+                              class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
+                              data: { turbo_confirm: "Delete this journal entry?" } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </main>
+</div>

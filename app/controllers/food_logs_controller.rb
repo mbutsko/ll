@@ -1,4 +1,17 @@
 class FoodLogsController < ApplicationController
+  def edit
+    @food_log = current_user.food_logs.includes(:food).find(params[:id])
+  end
+
+  def update
+    @food_log = current_user.food_logs.find(params[:id])
+    if @food_log.update(food_log_params)
+      redirect_to root_path, notice: "Food entry updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     @food_log = current_user.food_logs.find(params[:id])
     @food_log.destroy

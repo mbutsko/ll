@@ -5,11 +5,13 @@ Rails.application.routes.draw do
 
   resources :metrics, except: [:show]
   resources :exercises, except: [:show]
-  resources :exercise_logs, only: [:create, :destroy]
+  resources :exercise_logs, only: [:create, :destroy, :edit, :update]
   resources :foods, except: [:show]
-  resources :food_logs, only: [:create, :destroy]
+  resources :food_logs, only: [:create, :destroy, :edit, :update]
   resources :labels, except: [:show]
-  resources :journal_entries, only: [:create, :destroy]
+  resources :journal_entries, only: [:create, :destroy, :edit, :update]
+
+  get "stream", to: "stream#index"
 
   get   "measurements/new",      to: "measurements#new",         as: :new_measurement
   get   "measurements/:id/edit", to: "measurements#edit",        as: :edit_measurement
@@ -28,6 +30,9 @@ Rails.application.routes.draw do
       end
     end
     resources :measurements, only: [:create]
+    resources :exercise_logs, only: [:create]
+    resources :food_logs, only: [:create]
+    resources :journal_entries, only: [:create]
     resources :exercises, only: [] do
       collection do
         get :search
