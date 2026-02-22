@@ -30,6 +30,6 @@ class JournalEntriesController < ApplicationController
   private
 
   def journal_entry_params
-    params.require(:journal_entry).permit(:body, label_ids: [])
+    params.require(:journal_entry).permit(:body, :recorded_at, label_ids: [])
   end
 end

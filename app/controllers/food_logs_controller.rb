@@ -32,6 +32,6 @@ class FoodLogsController < ApplicationController
   private
 
   def food_log_params
-    params.require(:food_log).permit(:food_id, :value, :unit)
+    params.require(:food_log).permit(:food_id, :value, :unit, :consumed_at)
   end
 end
