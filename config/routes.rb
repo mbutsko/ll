@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   resources :exercise_logs, only: [:create]
   resources :foods, except: [:show]
   resources :food_logs, only: [:create]
+  resources :labels, except: [:show]
+  resources :journal_entries, only: [:create, :destroy]
 
   get   "measurements/new",      to: "measurements#new",         as: :new_measurement
   get   "measurements/:id/edit", to: "measurements#edit",        as: :edit_measurement

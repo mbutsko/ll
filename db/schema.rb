@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_22_100002) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_22_200003) do
   create_table "exercise_logs", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "exercise_id", null: false
@@ -66,6 +66,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_22_100002) do
     t.integer "value", null: false
     t.index ["user_id", "date"], name: "index_hrv_entries_on_user_id_and_date", unique: true
     t.index ["user_id"], name: "index_hrv_entries_on_user_id"
+  end
+
+  create_table "journal_entries", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "recorded_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "recorded_at"], name: "index_journal_entries_on_user_id_and_recorded_at"
+    t.index ["user_id"], name: "index_journal_entries_on_user_id"
+  end
+
+  create_table "journal_entry_labels", force: :cascade do |t|
+    t.integer "journal_entry_id", null: false
+    t.integer "label_id", null: false
+    t.index ["journal_entry_id", "label_id"], name: "index_journal_entry_labels_on_journal_entry_id_and_label_id", unique: true
+    t.index ["journal_entry_id"], name: "index_journal_entry_labels_on_journal_entry_id"
+    t.index ["label_id"], name: "index_journal_entry_labels_on_label_id"
+  end
+
+  create_table "labels", force: :cascade do |t|
+    t.string "color", default: "gray", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_labels_on_slug", unique: true
   end
 
   create_table "measurements", force: :cascade do |t|
@@ -143,6 +170,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_22_100002) do
   add_foreign_key "food_logs", "foods"
   add_foreign_key "food_logs", "users"
   add_foreign_key "hrv_entries", "users"
+  add_foreign_key "journal_entries", "users"
+  add_foreign_key "journal_entry_labels", "journal_entries"
+  add_foreign_key "journal_entry_labels", "labels"
   add_foreign_key "measurements", "metrics"
   add_foreign_key "measurements", "users"
   add_foreign_key "rhr_entries", "users"
