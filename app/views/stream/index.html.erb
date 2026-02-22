@@ -8,35 +8,27 @@
 
   <main class="max-w-3xl mx-auto px-6 py-6">
     <%= form_with url: stream_path, method: :get, class: "bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 mb-6" do %>
-      <div class="flex flex-wrap items-end gap-3">
+      <div class="flex items-center justify-between gap-3">
         <div class="flex flex-wrap gap-2">
           <% %w[measurements food exercise journal].each do |type| %>
-            <label class="inline-flex items-center cursor-pointer">
-              <input type="checkbox" name="types[]" value="<%= type %>"
-                <%= "checked" if @active_types.include?(type) %>
-                class="hidden peer">
-              <span class="px-3 py-1.5 rounded-full text-sm font-medium border transition
-                peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600
-                bg-white text-gray-600 border-gray-300 hover:border-gray-400">
-                <%= type.capitalize %>
-              </span>
-            </label>
+            <% active = @active_types.include?(type) %>
+            <button type="button"
+              class="px-3 py-1.5 rounded-full text-sm font-medium border transition cursor-pointer <%= active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400' %>"
+              onclick="var cb=this.nextElementSibling;cb.checked=!cb.checked;this.closest('form').requestSubmit();">
+              <%= type.capitalize %>
+            </button>
+            <input type="checkbox" name="types[]" value="<%= type %>"
+              <%= "checked" if active %> style="display:none">
           <% end %>
         </div>
-        <div class="flex items-end gap-2">
-          <div>
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">From</p>
-            <input type="date" name="start_date" value="<%= @start_date %>"
-              class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
-          </div>
-          <div>
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">To</p>
-            <input type="date" name="end_date" value="<%= @end_date %>"
-              class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
-          </div>
-          <button type="submit" class="bg-blue-600 text-white font-medium px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer">
-            Filter
-          </button>
+        <div class="flex items-center gap-2 shrink-0">
+          <input type="date" name="start_date" value="<%= @start_date %>"
+            onblur="this.closest('form').requestSubmit()"
+            class="rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+          <span class="text-xs text-gray-400">—</span>
+          <input type="date" name="end_date" value="<%= @end_date %>"
+            onblur="this.closest('form').requestSubmit()"
+            class="rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
         </div>
       </div>
     <% end %>
@@ -47,7 +39,7 @@
       </div>
     <% else %>
       <% @entries.group_by { |e| e[:timestamp].to_date }.each do |date, day_entries| %>
-        <div class="mb-4">
+        <div class="mb-8">
           <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-1">
             <%= date == Date.current ? "Today" : date == Date.yesterday ? "Yesterday" : date.strftime("%B %-d, %Y") %>
           </h3>
@@ -72,8 +64,11 @@
                           <div class="flex items-center gap-2">
                             <%= link_to "Trends", measurement_path(metric_slug: m.metric.slug),
                                   class: "text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
-                            <%= link_to "Edit", edit_measurement_path(m),
-                                  class: "text-xs font-medium text-gray-400 hover:text-gray-600 transition" %>
+                            <%= link_to edit_measurement_path(m), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
+                              <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                              </svg>
+                            <% end %>
                           </div>
                         <% end %>
                       </div>
@@ -81,56 +76,51 @@
                   </div>
                 </div>
 
-              <% when "food" %>
+              <% when "food_cluster" %>
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-xs font-medium text-orange-600 uppercase tracking-wide">Food</p>
-                      <p class="text-sm font-medium text-gray-900"><%= record.food.name %></p>
-                      <% food_val = record.value % 1 == 0 ? number_with_delimiter(record.value.to_i) : number_with_delimiter(record.value) %>
-                      <p class="text-xs text-gray-500"><%= food_val %> <%= record.unit %></p>
-                    </div>
-                    <div class="text-right">
-                      <span class="text-xs text-gray-400"><%= record.consumed_at.strftime("%-I:%M %p") %></span>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <p class="text-xs font-medium text-orange-600 uppercase tracking-wide">Food</p>
+                    <span class="text-xs text-gray-400"><%= record.first.consumed_at.strftime("%-I:%M %p") %></span>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-1">
+                    <% record.each_with_index do |log, i| %>
+                      <% food_val = log.value % 1 == 0 ? log.value.to_i : log.value %>
+                      <% unit_label = food_val == 1 ? log.unit.singularize : log.unit %>
+                      <span class="text-sm text-gray-900"><span class="text-gray-400"><%= food_val %> <%= unit_label %></span> <%= log.food.name %></span>
                       <% if user_signed_in? %>
-                        <div class="flex items-center gap-2 mt-0.5">
-                          <%= link_to "Edit", edit_food_log_path(record),
-                                class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
-                          <%= button_to "Delete", food_log_path(record), method: :delete,
-                                class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
-                                data: { turbo_confirm: "Delete this food entry?" } %>
-                        </div>
+                        <%= link_to edit_food_log_path(log), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
+                          <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                          </svg>
+                        <% end %>
                       <% end %>
-                    </div>
+                      <% if i < record.size - 1 %>
+                        <span class="text-gray-300 mx-0.5">,</span>
+                      <% end %>
+                    <% end %>
                   </div>
                 </div>
 
-              <% when "exercise" %>
+              <% when "exercise_cluster" %>
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">Exercise</p>
-                      <p class="text-sm font-medium text-gray-900"><%= record.exercise.name %></p>
-                      <% ex_val = record.value % 1 == 0 ? number_with_delimiter(record.value.to_i) : number_with_delimiter(record.value) %>
-                      <p class="text-xs text-gray-500">
-                        <%= ex_val %> <%= record.exercise.unit_label %>
-                        <% if record.weight_lbs.present? && record.weight_lbs > 0 %>
-                          @ <%= record.weight_lbs % 1 == 0 ? record.weight_lbs.to_i : record.weight_lbs %> lbs
-                        <% end %>
-                      </p>
-                    </div>
-                    <div class="text-right">
-                      <span class="text-xs text-gray-400"><%= record.performed_at.strftime("%-I:%M %p") %></span>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">Exercise</p>
+                    <span class="text-xs text-gray-400"><%= record.first.performed_at.strftime("%-I:%M %p") %></span>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-1">
+                    <% record.each_with_index do |log, i| %>
+                      <span class="text-sm text-gray-900"><%= log.exercise.name %></span>
                       <% if user_signed_in? %>
-                        <div class="flex items-center gap-2 mt-0.5">
-                          <%= link_to "Edit", edit_exercise_log_path(record),
-                                class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
-                          <%= button_to "Delete", exercise_log_path(record), method: :delete,
-                                class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
-                                data: { turbo_confirm: "Delete this exercise entry?" } %>
-                        </div>
+                        <%= link_to edit_exercise_log_path(log), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
+                          <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                          </svg>
+                        <% end %>
                       <% end %>
-                    </div>
+                      <% if i < record.size - 1 %>
+                        <span class="text-gray-300 mx-0.5">,</span>
+                      <% end %>
+                    <% end %>
                   </div>
                 </div>
 
@@ -152,8 +142,11 @@
                       <span class="text-xs text-gray-400"><%= record.recorded_at.strftime("%-I:%M %p") %></span>
                       <% if user_signed_in? %>
                         <div class="flex items-center gap-2 mt-0.5">
-                          <%= link_to "Edit", edit_journal_entry_path(record),
-                                class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                          <%= link_to edit_journal_entry_path(record), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
+                            <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                            </svg>
+                          <% end %>
                           <%= button_to "Delete", journal_entry_path(record), method: :delete,
                                 class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
                                 data: { turbo_confirm: "Delete this journal entry?" } %>

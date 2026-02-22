@@ -83,12 +83,12 @@
 
         <div data-controller="food-log">
           <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
-            <%= form_with url: food_logs_path, method: :post, class: "flex items-end gap-3" do |f| %>
+            <%= form_with url: food_logs_path, method: :post, class: "flex flex-wrap items-end gap-3" do |f| %>
               <input type="hidden" name="food_log[food_id]" data-food-log-target="foodId">
-              <div class="flex-1 relative">
+              <div class="w-full md:flex-1 relative">
                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Food</p>
                 <span data-food-log-target="selectedName" data-action="click->food-log#clearSelection"
-                      class="hidden inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                      class="hidden items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
                 </span>
                 <input type="text" placeholder="Search foods..."
                        data-food-log-target="input"
@@ -117,12 +117,12 @@
 
         <div data-controller="exercise-log" data-exercise-log-last-values-value="<%= @last_exercise_values.to_json %>" data-exercise-log-last-weights-value="<%= @last_exercise_weights.to_json %>">
           <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
-            <%= form_with url: exercise_logs_path, method: :post, class: "flex items-end gap-3" do |f| %>
+            <%= form_with url: exercise_logs_path, method: :post, class: "flex flex-wrap items-end gap-3" do |f| %>
               <input type="hidden" name="exercise_log[exercise_id]" data-exercise-log-target="exerciseId">
-              <div class="flex-1 relative">
+              <div class="w-full md:flex-1 relative">
                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Exercise</p>
                 <span data-exercise-log-target="selectedName" data-action="click->exercise-log#clearSelection"
-                      class="hidden inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                      class="hidden items-center gap-1 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 transition">
                 </span>
                 <input type="text" placeholder="Search exercises..."
                        data-exercise-log-target="input"
@@ -200,8 +200,11 @@
                     <div class="flex items-center gap-2">
                       <%= link_to "Trends", measurement_path(metric_slug: m[:metric].slug),
                             class: "text-xs font-medium text-blue-600 hover:text-blue-800 transition" %>
-                      <%= link_to "Edit", edit_measurement_path(m[:entry]),
-                            class: "text-xs font-medium text-gray-400 hover:text-gray-600 transition" %>
+                      <%= link_to edit_measurement_path(m[:entry]), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
+                        <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                        </svg>
+                      <% end %>
                     </div>
                   </div>
                 <% elsif m %>
@@ -216,26 +219,21 @@
             food_clusters.each do |cluster|
           %>
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
-              <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center justify-between mb-1.5">
                 <p class="text-xs font-medium text-orange-600 uppercase tracking-wide">Food</p>
                 <span class="text-xs text-gray-400"><%= cluster.first.consumed_at.strftime("%-I:%M %p") %></span>
               </div>
-              <div class="<%= 'divide-y divide-gray-100' if cluster.size > 1 %>">
-                <% cluster.each do |log| %>
-                  <div class="<%= 'py-1.5' if cluster.size > 1 %> flex items-center justify-between">
-                    <div>
-                      <p class="text-sm font-medium text-gray-900"><%= log.food.name %></p>
-                      <% food_val = log.value % 1 == 0 ? number_with_delimiter(log.value.to_i) : number_with_delimiter(log.value) %>
-                      <p class="text-xs text-gray-500"><%= food_val %> <%= log.unit %></p>
-                    </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                      <%= link_to "Edit", edit_food_log_path(log),
-                            class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
-                      <%= button_to "Delete", food_log_path(log), method: :delete,
-                            class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
-                            data: { turbo_confirm: "Delete this food entry?" } %>
-                    </div>
-                  </div>
+              <div class="flex flex-wrap items-center gap-1">
+                <% cluster.each_with_index do |log, i| %>
+                  <span class="text-sm text-gray-900"><%= log.food.name %></span>
+                  <%= link_to edit_food_log_path(log), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
+                    <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                    </svg>
+                  <% end %>
+                  <% if i < cluster.size - 1 %>
+                    <span class="text-gray-300 mx-0.5">,</span>
+                  <% end %>
                 <% end %>
               </div>
             </div>
@@ -264,8 +262,11 @@
                       </p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
-                      <%= link_to "Edit", edit_exercise_log_path(log),
-                            class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                      <%= link_to edit_exercise_log_path(log), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
+                        <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                        </svg>
+                      <% end %>
                       <%= button_to "Delete", exercise_log_path(log), method: :delete,
                             class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
                             data: { turbo_confirm: "Delete this exercise entry?" } %>
@@ -292,8 +293,11 @@
                   </div>
                 <% end %>
                 <div class="mt-1 flex items-center gap-2">
-                  <%= link_to "Edit", edit_journal_entry_path(entry),
-                        class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                  <%= link_to edit_journal_entry_path(entry), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
+                    <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                    </svg>
+                  <% end %>
                   <%= button_to "Delete", journal_entry_path(entry), method: :delete,
                         class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
                         data: { turbo_confirm: "Delete this journal entry?" } %>

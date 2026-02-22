@@ -25,7 +25,8 @@
       "Bash(./create_metric.sh:*)",
       "Bash(bin/rails test:*)",
       "Bash(find:*)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(ruby:*)"
     ]
   }
 }

@@ -64,6 +64,7 @@ export default class extends Controller {
     this.foodIdTarget.value = id
     this.selectedNameTarget.textContent = name
     this.selectedNameTarget.classList.remove("hidden")
+    this.selectedNameTarget.classList.add("inline-flex")
     this.unitSelectTarget.value = defaultUnit
     if (defaultServing) {
       this.valueTarget.value = defaultServing
@@ -77,6 +78,7 @@ export default class extends Controller {
   clearSelection() {
     this.foodIdTarget.value = ""
     this.selectedNameTarget.classList.add("hidden")
+    this.selectedNameTarget.classList.remove("inline-flex")
     this.inputTarget.classList.remove("hidden")
     this.inputTarget.focus()
   }
