@@ -6,6 +6,21 @@ class JournalEntriesController < ApplicationController
     redirect_to root_path
   end
 
+  def edit
+    @journal_entry = current_user.journal_entries.includes(:labels).find(params[:id])
+    @labels = Label.order(:name)
+  end
+
+  def update
+    @journal_entry = current_user.journal_entries.find(params[:id])
+    if @journal_entry.update(journal_entry_params)
+      redirect_to root_path, notice: "Journal entry updated."
+    else
+      @labels = Label.order(:name)
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     @journal_entry = current_user.journal_entries.find(params[:id])
     @journal_entry.destroy

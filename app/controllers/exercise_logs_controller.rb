@@ -1,4 +1,17 @@
 class ExerciseLogsController < ApplicationController
+  def edit
+    @exercise_log = current_user.exercise_logs.includes(:exercise).find(params[:id])
+  end
+
+  def update
+    @exercise_log = current_user.exercise_logs.find(params[:id])
+    if @exercise_log.update(exercise_log_params)
+      redirect_to root_path, notice: "Exercise entry updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     @exercise_log = current_user.exercise_logs.find(params[:id])
     @exercise_log.destroy

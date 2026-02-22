@@ -1,0 +1,38 @@
+<div class="min-h-screen bg-gray-50">
+  <nav class="bg-white border-b border-gray-200">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <span class="text-lg font-semibold text-gray-900">Edit Exercise Log</span>
+      <%= link_to "Back", root_path, class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-6 py-10">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <%= form_with model: @exercise_log, url: exercise_log_path(@exercise_log), method: :patch, class: "space-y-5" do |f| %>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Exercise</label>
+          <p class="text-gray-900"><%= @exercise_log.exercise.name %></p>
+        </div>
+
+        <div>
+          <%= f.label :value, @exercise_log.exercise.unit_label.capitalize, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :value, step: 1, min: 0, required: true,
+                class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
+        </div>
+
+        <% if @exercise_log.exercise.exercise_type == "reps" %>
+          <div>
+            <%= f.label :weight_lbs, "Weight (lbs)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.number_field :weight_lbs, step: "any", min: 0,
+                  class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" %>
+          </div>
+        <% end %>
+
+        <div class="flex items-center gap-3 pt-2">
+          <%= f.submit "Save", class: "bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition cursor-pointer" %>
+          <%= link_to "Cancel", root_path, class: "text-sm text-gray-500 hover:text-gray-700 transition" %>
+        </div>
+      <% end %>
+    </div>
+  </main>
+</div>

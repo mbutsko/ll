@@ -228,9 +228,13 @@
                       <% food_val = log.value % 1 == 0 ? number_with_delimiter(log.value.to_i) : number_with_delimiter(log.value) %>
                       <p class="text-xs text-gray-500"><%= food_val %> <%= log.unit %></p>
                     </div>
-                    <%= button_to "Delete", food_log_path(log), method: :delete,
-                          class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
-                          data: { turbo_confirm: "Delete this food entry?" } %>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <%= link_to "Edit", edit_food_log_path(log),
+                            class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                      <%= button_to "Delete", food_log_path(log), method: :delete,
+                            class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
+                            data: { turbo_confirm: "Delete this food entry?" } %>
+                    </div>
                   </div>
                 <% end %>
               </div>
@@ -259,9 +263,13 @@
                         <% end %>
                       </p>
                     </div>
-                    <%= button_to "Delete", exercise_log_path(log), method: :delete,
-                          class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
-                          data: { turbo_confirm: "Delete this exercise entry?" } %>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <%= link_to "Edit", edit_exercise_log_path(log),
+                            class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                      <%= button_to "Delete", exercise_log_path(log), method: :delete,
+                            class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
+                            data: { turbo_confirm: "Delete this exercise entry?" } %>
+                    </div>
                   </div>
                 <% end %>
               </div>
@@ -283,9 +291,13 @@
                     <% end %>
                   </div>
                 <% end %>
-                <%= button_to "Delete", journal_entry_path(entry), method: :delete,
-                      class: "mt-1 text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
-                      data: { turbo_confirm: "Delete this journal entry?" } %>
+                <div class="mt-1 flex items-center gap-2">
+                  <%= link_to "Edit", edit_journal_entry_path(entry),
+                        class: "text-xs text-gray-400 hover:text-gray-600 transition" %>
+                  <%= button_to "Delete", journal_entry_path(entry), method: :delete,
+                        class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
+                        data: { turbo_confirm: "Delete this journal entry?" } %>
+                </div>
               </div>
             <% end %>
           <% end %>
@@ -295,6 +307,10 @@
               Nothing recorded yet
             </div>
           <% end %>
+
+          <div class="text-center pt-1">
+            <%= link_to "View More", stream_path, class: "text-sm font-medium text-blue-600 hover:text-blue-800 transition" %>
+          </div>
         </div>
       </div>
     </div>
