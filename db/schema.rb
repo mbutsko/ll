@@ -10,7 +10,54 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_16_163111) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_22_100002) do
+  create_table "exercise_logs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "exercise_id", null: false
+    t.text "notes"
+    t.datetime "performed_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.decimal "value", precision: 10, scale: 2, null: false
+    t.index ["exercise_id"], name: "index_exercise_logs_on_exercise_id"
+    t.index ["user_id", "exercise_id"], name: "index_exercise_logs_on_user_id_and_exercise_id"
+    t.index ["user_id", "performed_at"], name: "index_exercise_logs_on_user_id_and_performed_at"
+    t.index ["user_id"], name: "index_exercise_logs_on_user_id"
+  end
+
+  create_table "exercises", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "exercise_type", default: "reps", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_exercises_on_slug", unique: true
+  end
+
+  create_table "food_logs", force: :cascade do |t|
+    t.datetime "consumed_at", null: false
+    t.datetime "created_at", null: false
+    t.integer "food_id", null: false
+    t.text "notes"
+    t.string "unit", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.decimal "value", precision: 10, scale: 2, null: false
+    t.index ["food_id"], name: "index_food_logs_on_food_id"
+    t.index ["user_id", "consumed_at"], name: "index_food_logs_on_user_id_and_consumed_at"
+    t.index ["user_id", "food_id"], name: "index_food_logs_on_user_id_and_food_id"
+    t.index ["user_id"], name: "index_food_logs_on_user_id"
+  end
+
+  create_table "foods", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "default_unit", default: "grams", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_foods_on_slug", unique: true
+  end
+
   create_table "hrv_entries", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "date", null: false
@@ -91,6 +138,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_163111) do
     t.index ["user_id"], name: "index_weight_entries_on_user_id"
   end
 
+  add_foreign_key "exercise_logs", "exercises"
+  add_foreign_key "exercise_logs", "users"
+  add_foreign_key "food_logs", "foods"
+  add_foreign_key "food_logs", "users"
   add_foreign_key "hrv_entries", "users"
   add_foreign_key "measurements", "metrics"
   add_foreign_key "measurements", "users"
