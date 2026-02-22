@@ -5,9 +5,9 @@ Rails.application.routes.draw do
 
   resources :metrics, except: [:show]
   resources :exercises, except: [:show]
-  resources :exercise_logs, only: [:create]
+  resources :exercise_logs, only: [:create, :destroy]
   resources :foods, except: [:show]
-  resources :food_logs, only: [:create]
+  resources :food_logs, only: [:create, :destroy]
   resources :labels, except: [:show]
   resources :journal_entries, only: [:create, :destroy]
 
