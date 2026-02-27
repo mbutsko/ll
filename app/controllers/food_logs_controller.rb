@@ -1,6 +1,7 @@
 class FoodLogsController < ApplicationController
   def edit
     @food_log = current_user.food_logs.includes(:food).find(params[:id])
+    @food_log.consumed_at = @food_log.consumed_at.change(sec: 0)
   end
 
   def update

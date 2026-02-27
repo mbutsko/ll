@@ -8,6 +8,7 @@ class JournalEntriesController < ApplicationController
 
   def edit
     @journal_entry = current_user.journal_entries.includes(:labels).find(params[:id])
+    @journal_entry.recorded_at = @journal_entry.recorded_at.change(sec: 0)
     @labels = Label.order(:name)
   end
 
