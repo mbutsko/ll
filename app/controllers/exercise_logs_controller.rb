@@ -1,6 +1,7 @@
 class ExerciseLogsController < ApplicationController
   def edit
     @exercise_log = current_user.exercise_logs.includes(:exercise).find(params[:id])
+    @exercise_log.performed_at = @exercise_log.performed_at.change(sec: 0)
   end
 
   def update
