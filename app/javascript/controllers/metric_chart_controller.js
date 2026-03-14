@@ -1,8 +1,40 @@
 import { Controller } from "@hotwired/stimulus"
-import { Chart, registerables } from "chart.js"
-import "chartjs_date_adapter"
+import { Chart, registerables, _adapters } from "chart.js"
+import {
+  toDate, parse, parseISO, format,
+  addYears, addQuarters, addMonths, addWeeks, addDays,
+  addHours, addMinutes, addSeconds, addMilliseconds,
+  differenceInYears, differenceInQuarters, differenceInMonths,
+  differenceInWeeks, differenceInDays, differenceInHours,
+  differenceInMinutes, differenceInSeconds, differenceInMilliseconds,
+  startOfYear, startOfQuarter, startOfMonth, startOfWeek, startOfDay,
+  startOfHour, startOfMinute, startOfSecond,
+  endOfYear, endOfQuarter, endOfMonth, endOfWeek, endOfDay,
+  endOfHour, endOfMinute, endOfSecond
+} from "date-fns"
 
 Chart.register(...registerables)
+
+const STARTS = { second: startOfSecond, minute: startOfMinute, hour: startOfHour, day: startOfDay, week: startOfWeek, month: startOfMonth, quarter: startOfQuarter, year: startOfYear }
+const ENDS = { second: endOfSecond, minute: endOfMinute, hour: endOfHour, day: endOfDay, week: endOfWeek, month: endOfMonth, quarter: endOfQuarter, year: endOfYear }
+const ADDERS = { millisecond: addMilliseconds, second: addSeconds, minute: addMinutes, hour: addHours, day: addDays, week: addWeeks, month: addMonths, quarter: addQuarters, year: addYears }
+const DIFFS = { millisecond: differenceInMilliseconds, second: differenceInSeconds, minute: differenceInMinutes, hour: differenceInHours, day: differenceInDays, week: differenceInWeeks, month: differenceInMonths, quarter: differenceInQuarters, year: differenceInYears }
+
+_adapters._date.override({
+  formats() { return { datetime: "MMM d, yyyy, h:mm:ss aaaa", millisecond: "h:mm:ss.SSS aaaa", second: "h:mm:ss aaaa", minute: "h:mm aaaa", hour: "ha", day: "MMM d", week: "PP", month: "MMM yyyy", quarter: "'Q'Q - yyyy", year: "yyyy" } },
+  parse(value, fmt) {
+    if (value == null) return null
+    if (typeof value === "number") return value
+    if (value instanceof Date) return +value
+    if (typeof value === "string") return fmt ? +parse(value, fmt, new Date()) : +parseISO(value)
+    return null
+  },
+  format(time, fmt) { return format(toDate(time), fmt) },
+  add(time, amount, unit) { return ADDERS[unit] ? +ADDERS[unit](toDate(time), amount) : time },
+  diff(max, min, unit) { return DIFFS[unit] ? DIFFS[unit](toDate(max), toDate(min)) : 0 },
+  startOf(time, unit) { return STARTS[unit] ? +STARTS[unit](toDate(time)) : time },
+  endOf(time, unit) { return ENDS[unit] ? +ENDS[unit](toDate(time)) : time }
+})
 
 // If data points are more than 2 days apart, show a gap in the line
 const GAP_THRESHOLD_MS = 2 * 24 * 60 * 60 * 1000
