@@ -68,6 +68,7 @@ export default class extends Controller {
     const points = data.map(d => ({ x: d.date, y: d.value }))
     const avg7Points = data.map(d => ({ x: d.date, y: d.avg_7d }))
     const avg30Points = data.map(d => ({ x: d.date, y: d.avg_30d }))
+    const isAll = this.rangeValue === "all"
 
     const ctx = this.canvasTarget.getContext("2d")
     this.chart = new Chart(ctx, {
@@ -84,6 +85,7 @@ export default class extends Controller {
             pointHoverRadius: 5,
             tension: 0,
             fill: true,
+            hidden: isAll && this.dailyValue,
             spanGaps: GAP_THRESHOLD_MS
           },
           ...(this.dailyValue ? [
@@ -97,6 +99,7 @@ export default class extends Controller {
               pointHoverRadius: 4,
               tension: 0.3,
               fill: false,
+              hidden: isAll,
               spanGaps: GAP_THRESHOLD_MS
             },
             {
@@ -192,6 +195,7 @@ export default class extends Controller {
     if (response.ok) {
       const json = await response.json()
       this.dataValue = json.chart_data
+      this.rangeValue = range
       this.renderChart()
     }
   }

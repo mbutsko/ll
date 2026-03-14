@@ -1,3 +1,5 @@
+require "csv"
+
 class MeasurementsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:index, :csv_export]
 
