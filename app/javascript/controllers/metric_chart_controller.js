@@ -1,7 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 import { Chart, registerables } from "chart.js"
+import "chartjs-adapter-date-fns"
 
 Chart.register(...registerables)
+
+// If data points are more than 2 days apart, show a gap in the line
+const GAP_THRESHOLD_MS = 2 * 24 * 60 * 60 * 1000
 
 export default class extends Controller {
   static targets = ["canvas"]
@@ -26,49 +30,54 @@ export default class extends Controller {
     if (!data.length) return
 
     const labelCount = data.length
-    const maxTicks = 12
     const unit = this.unitValue
     const label = this.labelValue
+
+    const points = data.map(d => ({ x: d.date, y: d.value }))
+    const avg7Points = data.map(d => ({ x: d.date, y: d.avg_7d }))
+    const avg30Points = data.map(d => ({ x: d.date, y: d.avg_30d }))
 
     const ctx = this.canvasTarget.getContext("2d")
     this.chart = new Chart(ctx, {
       type: "line",
       data: {
-        labels: data.map(d => d.date),
         datasets: [
           {
             label: label,
-            data: data.map(d => d.value),
+            data: points,
             borderColor: "rgb(59, 130, 246)",
             backgroundColor: "rgba(59, 130, 246, 0.1)",
             borderWidth: 2,
             pointRadius: labelCount > 90 ? 0 : 3,
             pointHoverRadius: 5,
             tension: 0,
-            fill: true
+            fill: true,
+            spanGaps: GAP_THRESHOLD_MS
           },
           ...(this.dailyValue ? [
             {
               label: "7-Day Avg",
-              data: data.map(d => d.avg_7d),
+              data: avg7Points,
               borderColor: "rgb(245, 158, 11)",
               borderWidth: 2,
               borderDash: [6, 3],
               pointRadius: 0,
               pointHoverRadius: 4,
               tension: 0.3,
-              fill: false
+              fill: false,
+              spanGaps: GAP_THRESHOLD_MS
             },
             {
               label: "30-Day Avg",
-              data: data.map(d => d.avg_30d),
+              data: avg30Points,
               borderColor: "rgb(239, 68, 68)",
               borderWidth: 2,
               borderDash: [6, 3],
               pointRadius: 0,
               pointHoverRadius: 4,
               tension: 0.3,
-              fill: false
+              fill: false,
+              spanGaps: GAP_THRESHOLD_MS
             }
           ] : [])
         ]
@@ -82,10 +91,20 @@ export default class extends Controller {
         },
         scales: {
           x: {
+            type: "time",
+            time: {
+              unit: this.#timeUnit(data),
+              tooltipFormat: "MMM d, yyyy",
+              displayFormats: {
+                day: "MMM d",
+                week: "MMM d",
+                month: "MMM yyyy"
+              }
+            },
             ticks: {
               maxRotation: 45,
               autoSkip: true,
-              maxTicksLimit: maxTicks
+              maxTicksLimit: 12
             },
             grid: { display: false }
           },
@@ -107,6 +126,16 @@ export default class extends Controller {
         }
       }
     })
+  }
+
+  #timeUnit(data) {
+    if (data.length < 2) return "day"
+    const first = new Date(data[0].date)
+    const last = new Date(data[data.length - 1].date)
+    const spanDays = (last - first) / (1000 * 60 * 60 * 24)
+    if (spanDays > 365) return "month"
+    if (spanDays > 90) return "week"
+    return "day"
   }
 
   async changeRange(event) {
