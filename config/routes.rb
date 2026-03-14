@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
   get "stream", to: "stream#index"
 
+  get   "measurements.csv",      to: "measurements#csv_export",  as: :measurements_csv
   get   "measurements/new",      to: "measurements#new",         as: :new_measurement
   get   "measurements/:id/edit", to: "measurements#edit",        as: :edit_measurement
   patch "measurements/:id",      to: "measurements#update",      as: :update_measurement

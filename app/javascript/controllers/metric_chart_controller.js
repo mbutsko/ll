@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { Chart, registerables } from "chart.js"
-import "chartjs-adapter-date-fns"
+import "chartjs_date_adapter"
 
 Chart.register(...registerables)
 

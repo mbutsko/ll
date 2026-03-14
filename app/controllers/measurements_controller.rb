@@ -1,5 +1,5 @@
 class MeasurementsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index]
+  skip_before_action :authenticate_user!, only: [:index, :csv_export]
 
   def index
     @metric = Metric.find_by_slug!(params[:metric_slug])
@@ -73,6 +73,39 @@ class MeasurementsController < ApplicationController
       @metrics = Metric.order(:name)
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def csv_export
+    user = current_user || User.first
+    metrics = Metric.order(:name)
+    measurements = Measurement.where(user: user)
+      .joins(:metric)
+      .select("measurements.date, measurements.value, metrics.name as metric_name")
+
+    if measurements.empty?
+      redirect_to root_path, notice: "No data to export."
+      return
+    end
+
+    lookup = measurements.each_with_object({}) do |m, hash|
+      hash[[m.date, m.metric_name]] = m.value
+    end
+
+    min_date = Measurement.where(user: user).minimum(:date)
+    max_date = Measurement.where(user: user).maximum(:date)
+    metric_names = metrics.pluck(:name)
+
+    csv_data = CSV.generate do |csv|
+      csv << ["date"] + metric_names
+      (min_date..max_date).each do |date|
+        csv << [date.iso8601] + metric_names.map { |name| lookup[[date, name]] }
+      end
+    end
+
+    send_data csv_data,
+      filename: "measurements-#{min_date}-to-#{max_date}.csv",
+      type: "text/csv",
+      disposition: "attachment"
   end
 
   private
