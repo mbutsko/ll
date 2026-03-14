@@ -26,7 +26,8 @@
       "Bash(bin/rails test:*)",
       "Bash(find:*)",
       "Bash(git check-ignore:*)",
-      "Bash(ruby:*)"
+      "Bash(ruby:*)",
+      "WebFetch(domain:cdn.jsdelivr.net)"
     ]
   }
 }
