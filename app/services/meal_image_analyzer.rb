@@ -33,6 +33,8 @@ class MealImageAnalyzer
     )
 
     text = response.content.first.text
+    # Strip markdown code fences if present
+    text = text.gsub(/\A\s*```(?:json)?\s*\n?/, "").gsub(/\n?\s*```\s*\z/, "")
     JSON.parse(text)
   end
 
