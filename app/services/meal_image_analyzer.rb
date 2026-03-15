@@ -9,7 +9,7 @@ class MealImageAnalyzer
     client = Anthropic::Client.new(api_key: ENV.fetch("ANTHROPIC_API_KEY"))
 
     response = client.messages.create(
-      model: "claude-sonnet-4-6-20250725",
+      model: "claude-sonnet-4-5-20250514",
       max_tokens: 1024,
       messages: [
         {
