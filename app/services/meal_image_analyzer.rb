@@ -33,6 +33,8 @@ class MealImageAnalyzer
     )
 
     text = response.content.first.text
+    # Strip markdown code fences if present
+    text = text.gsub(/\A\s*```(?:json)?\s*\n?/, "").gsub(/\n?\s*```\s*\z/, "")
     JSON.parse(text)
   end
 
@@ -59,6 +61,7 @@ class MealImageAnalyzer
 
     parts << <<~INSTRUCTIONS
       For each food, estimate:
+      - A list of *simple* ingredients; rather than 'Avocado toast', prefer 'Sourdough bread, mashed avocado'
       - A reasonable name (lowercase, e.g. "scrambled eggs", "white rice", "grilled chicken breast")
       - The approximate quantity consumed
       - The unit of measurement (must be one of: grams, tablespoons, cups, ounces, pieces, ml)
