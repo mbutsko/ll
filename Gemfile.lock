@@ -75,7 +75,7 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    anthropic (1.24.0)
+    anthropic (1.25.0)
       cgi
       connection_pool
     base64 (0.3.0)
