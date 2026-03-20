@@ -8,7 +8,6 @@ Rails.application.routes.draw do
   resources :exercise_logs, only: [:create, :destroy, :edit, :update]
   resources :foods, except: [:show]
   resources :food_logs, only: [:create, :destroy, :edit, :update]
-  resources :meal_images, only: [:new, :create]
   resources :labels, except: [:show]
   resources :journal_entries, only: [:create, :destroy, :edit, :update]
 
@@ -34,7 +33,6 @@ Rails.application.routes.draw do
     resources :measurements, only: [:create]
     resources :exercise_logs, only: [:create]
     resources :food_logs, only: [:create]
-    resources :meal_images, only: [:create]
     resources :journal_entries, only: [:create]
     resources :exercises, only: [] do
       collection do
