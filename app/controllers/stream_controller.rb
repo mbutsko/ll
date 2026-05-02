@@ -4,7 +4,7 @@ class StreamController < ApplicationController
   def index
     @user = User.first
     types = Array(params[:types]).reject(&:blank?)
-    types = %w[measurements food exercise journal] if types.empty?
+    types = %w[measurements food exercise] if types.empty?
 
     start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 7.days.ago.to_date
     end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.current
@@ -35,15 +35,6 @@ class StreamController < ApplicationController
       scope = scope.where(performed_at: ..end_date.end_of_day) if end_date
       scope.to_a.slice_when { |a, b| (a.performed_at - b.performed_at).abs > 30.minutes }.each do |cluster|
         entries << { type: "exercise_cluster", record: cluster, timestamp: cluster.first.performed_at }
-      end
-    end
-
-    if types.include?("journal")
-      scope = @user.journal_entries.includes(:labels)
-      scope = scope.where(recorded_at: start_date.beginning_of_day..) if start_date
-      scope = scope.where(recorded_at: ..end_date.end_of_day) if end_date
-      scope.find_each do |je|
-        entries << { type: "journal", record: je, timestamp: je.recorded_at }
       end
     end
 
@@ -96,13 +87,6 @@ class StreamController < ApplicationController
             performed_at: log.performed_at
           }
         }
-      }
-    when "journal"
-      {
-        type: "journal",
-        timestamp: entry[:timestamp],
-        body: entry[:record].body,
-        labels: entry[:record].labels.map(&:name)
       }
     end
   end

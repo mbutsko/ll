@@ -22,11 +22,6 @@ class HomeController < ApplicationController
       .where(consumed_at: Date.current.all_day)
       .order(consumed_at: :desc)
 
-    @todays_journal_entries = current_user.journal_entries
-      .includes(:labels)
-      .where(recorded_at: Date.current.all_day)
-      .order(recorded_at: :asc)
-
     @labels = Label.order(:name)
   end
 end

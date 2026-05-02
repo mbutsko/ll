@@ -9,8 +9,6 @@ Rails.application.routes.draw do
   resources :foods, except: [:show]
   resources :food_logs, only: [:create, :destroy, :edit, :update]
   resources :labels, except: [:show]
-  resources :journal_entries, only: [:create, :destroy, :edit, :update]
-
   get "stream", to: "stream#index"
 
   get   "measurements.csv",      to: "measurements#csv_export",  as: :measurements_csv
@@ -33,7 +31,6 @@ Rails.application.routes.draw do
     resources :measurements, only: [:create]
     resources :exercise_logs, only: [:create]
     resources :food_logs, only: [:create]
-    resources :journal_entries, only: [:create]
     resources :exercises, only: [] do
       collection do
         get :search

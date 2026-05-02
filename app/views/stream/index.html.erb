@@ -10,7 +10,7 @@
     <%= form_with url: stream_path, method: :get, class: "bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 mb-6" do %>
       <div class="flex items-center justify-between gap-3">
         <div class="flex flex-wrap gap-2">
-          <% %w[measurements food exercise journal].each do |type| %>
+          <% %w[measurements food exercise].each do |type| %>
             <% active = @active_types.include?(type) %>
             <button type="button"
               class="px-3 py-1.5 rounded-full text-sm font-medium border transition cursor-pointer <%= active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400' %>"
@@ -124,37 +124,6 @@
                   </div>
                 </div>
 
-              <% when "journal" %>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1 min-w-0">
-                      <p class="text-xs font-medium text-purple-600 uppercase tracking-wide">Journal</p>
-                      <p class="text-sm text-gray-900 mt-1 whitespace-pre-wrap"><%= record.body %></p>
-                      <% if record.labels.any? %>
-                        <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">
-                          <% record.labels.each do |label| %>
-                            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium <%= label_color_classes(label.color) %>"><%= label.name %></span>
-                          <% end %>
-                        </div>
-                      <% end %>
-                    </div>
-                    <div class="text-right shrink-0 ml-3">
-                      <span class="text-xs text-gray-400"><%= record.recorded_at.strftime("%-I:%M %p") %></span>
-                      <% if user_signed_in? %>
-                        <div class="flex items-center gap-2 mt-0.5">
-                          <%= link_to edit_journal_entry_path(record), class: "inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-100 hover:bg-gray-200 transition" do %>
-                            <svg class="w-2 h-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                            </svg>
-                          <% end %>
-                          <%= button_to "Delete", journal_entry_path(record), method: :delete,
-                                class: "text-xs text-gray-400 hover:text-red-600 transition cursor-pointer",
-                                data: { turbo_confirm: "Delete this journal entry?" } %>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
               <% end %>
             <% end %>
           </div>
