@@ -4,7 +4,7 @@ class StreamController < ApplicationController
   def index
     @user = User.first
     types = Array(params[:types]).reject(&:blank?)
-    types = %w[measurements food exercise] if types.empty?
+    types = %w[measurements exercise] if types.empty?
 
     start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 7.days.ago.to_date
     end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.current
@@ -17,15 +17,6 @@ class StreamController < ApplicationController
       scope = scope.where(date: ..end_date) if end_date
       scope.order(:date).group_by(&:date).each do |date, measurements|
         entries << { type: "measurements", record: measurements, timestamp: date.beginning_of_day }
-      end
-    end
-
-    if types.include?("food")
-      scope = @user.food_logs.includes(:food).order(:consumed_at)
-      scope = scope.where(consumed_at: start_date.beginning_of_day..) if start_date
-      scope = scope.where(consumed_at: ..end_date.end_of_day) if end_date
-      scope.to_a.slice_when { |a, b| (a.consumed_at - b.consumed_at).abs > 30.minutes }.each do |cluster|
-        entries << { type: "food_cluster", record: cluster, timestamp: cluster.first.consumed_at }
       end
     end
 
@@ -63,14 +54,6 @@ class StreamController < ApplicationController
         timestamp: entry[:timestamp],
         records: entry[:record].map { |m|
           { metric: m.metric.slug, value: m.value, units: m.metric.units, date: m.date }
-        }
-      }
-    when "food_cluster"
-      {
-        type: "food",
-        timestamp: entry[:timestamp],
-        records: entry[:record].map { |log|
-          { food: log.food.name, value: log.value, unit: log.unit, consumed_at: log.consumed_at }
         }
       }
     when "exercise_cluster"

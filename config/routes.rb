@@ -6,8 +6,6 @@ Rails.application.routes.draw do
   resources :metrics, except: [:show]
   resources :exercises, except: [:show]
   resources :exercise_logs, only: [:create, :destroy, :edit, :update]
-  resources :foods, except: [:show]
-  resources :food_logs, only: [:create, :destroy, :edit, :update]
   resources :labels, except: [:show]
   get "stream", to: "stream#index"
 
@@ -30,13 +28,7 @@ Rails.application.routes.draw do
     end
     resources :measurements, only: [:create]
     resources :exercise_logs, only: [:create]
-    resources :food_logs, only: [:create]
     resources :exercises, only: [] do
-      collection do
-        get :search
-      end
-    end
-    resources :foods, only: [] do
       collection do
         get :search
       end
