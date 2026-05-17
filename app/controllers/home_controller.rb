@@ -17,11 +17,6 @@ class HomeController < ApplicationController
     @last_exercise_weights = last_exercise_logs.each_with_object({}) { |log, h| h[log.exercise_id] = log.weight_lbs if log.weight_lbs }
     @last_exercise_distances = last_exercise_logs.each_with_object({}) { |log, h| h[log.exercise_id] = log.distance_miles if log.distance_miles }
 
-    @todays_food_logs = current_user.food_logs
-      .includes(:food)
-      .where(consumed_at: Date.current.all_day)
-      .order(consumed_at: :desc)
-
     @labels = Label.order(:name)
   end
 end
